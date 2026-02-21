@@ -1,0 +1,36 @@
+{
+	"name": "gestor-financeiro-backend-api-devcontainer",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "none",
+			"installMaven": "true",
+			"installGradle": "false"
+		}
+	},
+	// Configurações do container em execução
+	"runArgs": [
+		"--name", "gestor-financeiro-backend-api-devcontainer", // Nome definido para o container
+		"--memory", "1g", // Limite de memória
+		"--memory-reservation", "512m", // Reserva mínima de memória
+		"--dns", "8.8.8.8", // DNS do Google
+		"--dns", "1.1.1.1" // DNS da Cloudflare
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"vscjava.vscode-java-pack", // Pacote essencial Java (Language Support, Debugger, Maven, etc)
+				"redhat.vscode-quarkus", // Extensão oficial do Quarkus
+				"redhat.fabric8-analytics", // Análise de dependências e vulnerabilidades
+				"ms-azuretools.vscode-docker" // Auxilia caso use Docker no workflow do Quarkus
+			]
+		}
+	},
+	"mounts": [
+		{ "source": "m2_cache_volume", "target": "/home/vscode/.m2", "type": "volume" }
+	],
+	"shutdownAction": "none", // Mantém o container rodando mesmo se o VS Code fechar
+	"remoteUser": "vscode"
+}
