@@ -1,0 +1,23 @@
+{
+	"name": "gestor-financeiro-backend-api-devcontainer",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app", // O serviço onde o VS Code vai "entrar"
+	"workspaceFolder": "/workspaces/gestor-financeiro-backend-api",
+	"features": {
+     "ghcr.io/devcontainers/features/java:1": {
+        "installMaven": "true"
+    }
+  },
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"vscjava.vscode-java-pack", // Pacote essencial Java (Language Support, Debugger, Maven, etc)
+				"redhat.vscode-quarkus", // Extensão oficial do Quarkus
+				"redhat.fabric8-analytics", // Análise de dependências e vulnerabilidades
+				"ms-azuretools.vscode-docker" // Auxilia caso use Docker no workflow do Quarkus
+			]
+		}
+	},
+	"shutdownAction": "none", // Mantém o container rodando mesmo se o VS Code fechar
+	"remoteUser": "vscode"
+}

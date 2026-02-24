@@ -1,0 +1,19 @@
+services:
+  
+  db:
+    image: mysql:8.4.7
+    container_name: gestor-financeiro-backend-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root_password'
+      MYSQL_DATABASE: 'gestor_financeiro_backend_db'
+      MYSQL_USER: 'gestor_financeiro_backend_api'
+      MYSQL_PASSWORD: 'gestor_financeiro_backend_api'
+    ports:
+      - "3306:3306"
+    volumes:
+      - gestor_financeiro_backend_db:/var/lib/mysql
+
+# Define os volumes nomeados
+volumes:
+  gestor_financeiro_backend_db:
+    driver: local
