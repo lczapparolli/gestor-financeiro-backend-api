@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Seu container de desenvolvimento Java
+  app:
+    build:
+        context: ..
+        dockerfile: .devcontainer/Dockerfile
+    container_name: dev-gestor-financeiro-backend-api
+    volumes:
+      - ..:/workspaces/gestor-financeiro-backend-api:cached
+      - m2_cache_volume:/home/vscode/.m2
+    command: sleep infinity
+    networks:
+      - dev-network
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  db:
+    image: mysql:8.4.7
+    container_name: dev-gestor-financeiro-backend-db
+    networks:
+      - dev-network
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root_password'
+      MYSQL_DATABASE: 'gestor_financeiro_backend_db'
+      MYSQL_USER: 'gestor_financeiro_backend_api'
+      MYSQL_PASSWORD: 'gestor_financeiro_backend_api'
+    ports:
+      - "3306:3306"
+    volumes:
+      - gestor_financeiro_backend_db:/var/lib/mysql
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+
+networks:
+  dev-network:
+    driver: bridge
+
+volumes:
+  m2_cache_volume:
+  gestor_financeiro_backend_db:
