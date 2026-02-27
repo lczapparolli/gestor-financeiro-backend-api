@@ -1,69 +1,49 @@
 package br.com.lczapparolli.entity;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Objects;
-
 import org.hibernate.annotations.CreationTimestamp;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
+import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 @Entity
+@Table(name = "PREVISAO")
 public class Previsao extends PanacheEntityBase {
 
-  @EmbeddedId
-  public PrevisaoId id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false)
+  public Long id;
 
-  @ManyToOne
-  @MapsId("categoria")
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "id_categoria", nullable = false)
   public Categoria categoria;
 
-  @ManyToOne
-  @MapsId("periodo")
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "id_periodo", nullable = false)
   public Periodo periodo;
 
-  @Column(precision = 19, scale = 2)
+  @Column(name = "valor", nullable = false, precision = 19, scale = 2)
   public BigDecimal valor;
 
+  @Column(name = "ativo", nullable = false)
+  public boolean ativo = true;
+
   @CreationTimestamp
+  @Column(name = "data_criacao", nullable = false, updatable = false)
   public LocalDateTime dataCriacao;
 
   @Version
+  @Column(name = "versao", nullable = false)
   public LocalDateTime versao;
-
-  @Embeddable
-  public static class PrevisaoId implements Serializable {
-
-    public Long categoria;
-    public Long periodo;
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(categoria, periodo);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
-
-      PrevisaoId other = (PrevisaoId) obj;
-      return Objects.equals(this.categoria, other.categoria) &&
-          Objects.equals(this.periodo, other.periodo);
-    }
-
-  }
 
 }
