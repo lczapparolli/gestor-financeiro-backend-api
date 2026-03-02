@@ -1,66 +1,23 @@
-# gestor-financeiro-backend-api
+# API de backend do Gestor Financeiro
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+## Objetivo do projeto
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+O projeto como um todo tem como objetivo o estudo de recursos da linguagem Java, do framework Quarkus, da arquitetura de microsserviços e de componentes muito utilizados em plataformas de nuvem, como containers e a gestão de Kubernets. 
 
-## Running the application in dev mode
+Os recursos e funcionalidades serão implementados para resolver problemas práticos, pensando na realidade pessoal do controle financeiro de uma família.
 
-You can run your application in dev mode that enables live coding using:
+## Funcionalidades do serviço
 
-```shell script
-./mvnw quarkus:dev
-```
+Este serviço será a peça central do projeto oferecendo as funcionalidades para os frontends previstos (WebApp React e App Android). A stack será composta de uma aplicação Java, utilizando o framework Quarkus, que irá expor uma API Rest e armazenar os dados em um banco de dados MySQL.
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Modelagem de dados
 
-## Packaging and running the application
+Os dados estão organizados da seguinte forma:
 
-The application can be packaged using:
-
-```shell script
-./mvnw package
-```
-
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
-
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
-
-If you want to build an _über-jar_, execute the following command:
-
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
-
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/gestor-financeiro-backend-api-3.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST ([guide](https://quarkus.io/guides/rest)): A Jakarta REST implementation utilizing build time processing and Vert.x. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+- Entidade `Conta`: Representa as contas-correntes, poupanças e cartões de crédito
+- Entidade `Categoria`: São os tipos de movimentação, agrupamentos para os movimentos
+- Entidade `Previsao`: Utilizada para registrar o orçamento planejado por cada Categoria em um determinado mês
+- Entidade `CartaoCredito`: Especialização da Conta, com configurações específicas para tratar do fechamento e vencimento das faturas
+- Entidade `ContaPagar`: Representa os pagamentos a serem feitos, como forma de lembrete e planejamento
+- Entidade `Fatura`: Especialização da ContaPagar, realizando o vínculo de um CartaoCredito
+- Entidade `Movimento`: Entidade central, representando entradas e saídas das contas. Sendo a realização das previsões
