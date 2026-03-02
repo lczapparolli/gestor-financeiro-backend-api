@@ -43,9 +43,8 @@ public class Movimento extends PanacheEntityBase {
   @JoinColumn(name = "id_categoria", nullable = false)
   public Categoria categoria;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "id_periodo", nullable = false)
-  public Periodo periodo;
+  @Column(name = "periodo", nullable = false)
+  public LocalDate periodo;
 
   @Column(name = "ativo", nullable = false)
   public boolean ativo = true;

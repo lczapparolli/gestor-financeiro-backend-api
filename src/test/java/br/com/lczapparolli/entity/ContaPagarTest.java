@@ -21,20 +21,11 @@ import jakarta.transaction.Transactional;
 @QuarkusTest
 public class ContaPagarTest {
 
-    private static Long idPeriodo;
     private static Long idCategoria;
 
     @BeforeEach
     @Transactional
     void prepararDados() {
-        if (idPeriodo == null) {
-            var periodo = new Periodo();
-            periodo.dataInicio = LocalDate.now();
-            periodo.dataFim = LocalDate.now();
-            periodo.persistAndFlush();
-            idPeriodo = periodo.id;
-        }
-
         if (idCategoria == null) {
             var categoria = new Categoria();
             categoria.descricao = "Teste Conta a Pagar";
@@ -53,7 +44,7 @@ public class ContaPagarTest {
         // Prepara os dados iniciais
         var quantidadeInicial = ContaPagar.count();
         var contaPagar = new ContaPagar();
-        contaPagar.periodo = Periodo.findById(idPeriodo);
+        contaPagar.periodo = LocalDate.now();
         contaPagar.categoria = Categoria.findById(idCategoria);
         contaPagar.vencimento = LocalDate.now();
         contaPagar.valor = BigDecimal.ONE;
@@ -82,7 +73,7 @@ public class ContaPagarTest {
     void atualizarContaPagarTest() {
         // Prepara os dados iniciais
         var contaPagar = new ContaPagar();
-        contaPagar.periodo = Periodo.findById(idPeriodo);
+        contaPagar.periodo = LocalDate.now();
         contaPagar.categoria = Categoria.findById(idCategoria);
         contaPagar.vencimento = LocalDate.now();
         contaPagar.valor = BigDecimal.ONE;

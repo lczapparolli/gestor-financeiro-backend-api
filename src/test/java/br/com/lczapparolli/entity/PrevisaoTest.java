@@ -22,7 +22,6 @@ import jakarta.transaction.Transactional;
 public class PrevisaoTest {
 
     private static Long idCategoria;
-    private static Long idPeriodo;
 
     @BeforeEach
     @Transactional
@@ -32,14 +31,6 @@ public class PrevisaoTest {
             categoria.descricao = "Teste previsão";
             categoria.persistAndFlush();
             idCategoria = categoria.id;
-        }
-
-        if (idPeriodo == null) {
-            var periodo = new Periodo();
-            periodo.dataInicio = LocalDate.now();
-            periodo.dataFim = LocalDate.now();
-            periodo.persistAndFlush();
-            idPeriodo = periodo.id;
         }
     }
 
@@ -54,7 +45,7 @@ public class PrevisaoTest {
         var quantidadeInicial = Previsao.count();
         var previsao = new Previsao();
         previsao.categoria = Categoria.findById(idCategoria);
-        previsao.periodo = Periodo.findById(idPeriodo);
+        previsao.periodo = LocalDate.now();
         previsao.valor = BigDecimal.ONE;
         
         // Verifica se os campos não estão preenchidos
@@ -82,7 +73,7 @@ public class PrevisaoTest {
         // Prepara os dados iniciais
         var previsao = new Previsao();
         previsao.categoria = Categoria.findById(idCategoria);
-        previsao.periodo = Periodo.findById(idPeriodo);
+        previsao.periodo = LocalDate.now();
         previsao.valor = BigDecimal.ONE;
         previsao.persistAndFlush();
         var criacaoAnterior = previsao.dataCriacao;

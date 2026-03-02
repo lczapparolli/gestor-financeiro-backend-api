@@ -23,7 +23,6 @@ public class MovimentoTest {
 
     private static Long idCategoria;
     private static Long idConta;
-    private static Long idPeriodo;
 
     @BeforeEach
     @Transactional
@@ -41,14 +40,6 @@ public class MovimentoTest {
             conta.persistAndFlush();
             idConta = conta.id;
         }
-
-        if (idPeriodo == null) {
-            var periodo = new Periodo();
-            periodo.dataInicio = LocalDate.now();
-            periodo.dataFim = LocalDate.now();
-            periodo.persistAndFlush();
-            idPeriodo = periodo.id;
-        }
     }
 
     /**
@@ -63,7 +54,7 @@ public class MovimentoTest {
         var movimento = new Movimento();
         movimento.categoria = Categoria.findById(idCategoria);
         movimento.conta = Conta.findById(idConta);
-        movimento.periodo = Periodo.findById(idPeriodo);
+        movimento.periodo = LocalDate.now();
         movimento.data = LocalDate.now();
         movimento.descricao = "Teste inclusão";
         movimento.valor = BigDecimal.ONE;
@@ -94,7 +85,7 @@ public class MovimentoTest {
         var movimento = new Movimento();
         movimento.categoria = Categoria.findById(idCategoria);
         movimento.conta = Conta.findById(idConta);
-        movimento.periodo = Periodo.findById(idPeriodo);
+        movimento.periodo = LocalDate.now();
         movimento.data = LocalDate.now();
         movimento.descricao = "Teste atualização";
         movimento.valor = BigDecimal.ONE;

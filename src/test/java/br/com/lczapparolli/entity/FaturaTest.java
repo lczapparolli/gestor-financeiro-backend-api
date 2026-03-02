@@ -22,8 +22,7 @@ import jakarta.transaction.Transactional;
 public class FaturaTest {
 
     private static Long idCartao;
-    private static Long idPeriodo;
-    private static Long idContaPagar;
+    private static Long idCategoria;
 
     @BeforeEach
     @Transactional
@@ -37,26 +36,11 @@ public class FaturaTest {
             idCartao = cartao.id;
         }
 
-        if (idPeriodo == null) {
-            var periodo = new Periodo();
-            periodo.dataInicio = LocalDate.now();
-            periodo.dataFim = LocalDate.now();
-            periodo.persistAndFlush();
-            idPeriodo = periodo.id;
-        }
-
-        if (idContaPagar == null) {
+        if (idCategoria == null) {
             var categoria = new Categoria();
             categoria.descricao = "Teste Fatura";
             categoria.persistAndFlush();
-
-            var contaPagar = new ContaPagar();
-            contaPagar.periodo = Periodo.findById(idPeriodo);
-            contaPagar.categoria = categoria;
-            contaPagar.vencimento = LocalDate.now();
-            contaPagar.valor = BigDecimal.ONE;
-            contaPagar.persistAndFlush();
-            idContaPagar = contaPagar.id;
+            idCategoria = categoria.id;
         }
     }
 
@@ -69,10 +53,13 @@ public class FaturaTest {
     void incluirFaturaTest() {
         // Prepara os dados iniciais
         var quantidadeInicial = Fatura.count();
+        var quantidadeInicialPagar = ContaPagar.count();
         var fatura = new Fatura();
         fatura.cartaoCredito = CartaoCredito.findById(idCartao);
-        fatura.periodo = Periodo.findById(idPeriodo);
-        fatura.contaPagar = ContaPagar.findById(idContaPagar);
+        fatura.categoria = Categoria.findById(idCategoria);
+        fatura.periodo = LocalDate.now();
+        fatura.vencimento = LocalDate.now();
+        fatura.valor = BigDecimal.ONE;
         
         // Verifica se os campos não estão preenchidos
         assertNull(fatura.dataCriacao);
@@ -83,7 +70,9 @@ public class FaturaTest {
 
         //Verifica se o registro foi incluído
         var quantidade = Fatura.count();
+        var quantidadePagar = ContaPagar.count();
         assertEquals(quantidadeInicial + 1, quantidade);
+        assertEquals(quantidadeInicialPagar + 1, quantidadePagar);
         assertNotNull(fatura.dataCriacao);
         assertNotNull(fatura.versao);
         assertTrue(fatura.ativo);
@@ -99,15 +88,17 @@ public class FaturaTest {
         // Prepara os dados iniciais
         var fatura = new Fatura();
         fatura.cartaoCredito = CartaoCredito.findById(idCartao);
-        fatura.periodo = Periodo.findById(idPeriodo);
-        fatura.contaPagar = ContaPagar.findById(idContaPagar);
+        fatura.categoria = Categoria.findById(idCategoria);
+        fatura.periodo = LocalDate.now();
+        fatura.vencimento = LocalDate.now();
+        fatura.valor = BigDecimal.ONE;
         fatura.persistAndFlush();
         var criacaoAnterior = fatura.dataCriacao;
         var versaoAnterior = fatura.versao;
 
         // Procura a previsão inserida e atualiza as informações
         Fatura faturaInserida = Fatura.findById(fatura.id);
-        faturaInserida.ativo = false;
+        faturaInserida.valor = BigDecimal.TEN;
         faturaInserida.persistAndFlush();
 
         // Verifica se os campos foram atualizados
