@@ -1,4 +1,4 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,12 +9,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.CategoriaRepository;
-import br.com.lczapparolli.database.repository.ContaRepository;
-import br.com.lczapparolli.database.repository.MovimentoRepository;
+import br.com.lczapparolli.database.entity.Categoria;
+import br.com.lczapparolli.database.entity.Conta;
+import br.com.lczapparolli.database.entity.Movimento;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -23,7 +22,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade Movimento
  */
 @QuarkusTest
-public class MovimentoTest {
+public class MovimentoRepositoryTest {
 
     @Inject
     ContaRepository contaRepository;
@@ -60,8 +59,7 @@ public class MovimentoTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Movimento - Inclusão")
-    void incluirMovimentoTest() {
+    void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = movimentoRepository.count();
         var movimento = new Movimento();
@@ -92,8 +90,7 @@ public class MovimentoTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Movimento - Alteração")
-    void atualizacaoMovimentoTest() {
+    void atualizacao_sucesso_test() {
         // Prepara os dados iniciais
         var movimento = new Movimento();
         movimento.categoria = categoriaRepository.findById(idCategoria);

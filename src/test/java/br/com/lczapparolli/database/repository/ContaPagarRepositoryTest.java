@@ -1,4 +1,4 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,11 +9,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.CategoriaRepository;
-import br.com.lczapparolli.database.repository.ContaPagarRepository;
+import br.com.lczapparolli.database.entity.Categoria;
+import br.com.lczapparolli.database.entity.ContaPagar;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -22,7 +21,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade ContaPagar
  */
 @QuarkusTest
-public class ContaPagarTest {
+public class ContaPagarRepositoryTest {
 
     @Inject
     CategoriaRepository categoriaRepository;
@@ -48,8 +47,7 @@ public class ContaPagarTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade ContaPagar - Inclusão")
-    void incluirContaPagarTest() {
+    void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = contaPagarRepository.count();
         var contaPagar = new ContaPagar();
@@ -78,8 +76,7 @@ public class ContaPagarTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade ContaPagar - Alteração")
-    void atualizarContaPagarTest() {
+    void atualizar_sucesso_test() {
         // Prepara os dados iniciais
         var contaPagar = new ContaPagar();
         contaPagar.periodo = LocalDate.now();

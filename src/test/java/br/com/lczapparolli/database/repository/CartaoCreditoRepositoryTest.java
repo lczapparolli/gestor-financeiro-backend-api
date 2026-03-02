@@ -1,15 +1,13 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.CartaoCreditoRepository;
-import br.com.lczapparolli.database.repository.ContaRepository;
+import br.com.lczapparolli.database.entity.CartaoCredito;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,7 +16,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade CartaoCredito
  */
 @QuarkusTest
-public class CartaoCreditoTest {
+public class CartaoCreditoRepositoryTest {
 
     @Inject
     CartaoCreditoRepository cartaoCreditoRepository;
@@ -31,8 +29,7 @@ public class CartaoCreditoTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Cartão Crédito - Inclusão")
-    void incluirCartaoCreditoTest() {
+    void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = cartaoCreditoRepository.count();
         var quantidadeInicialConta = contaRepository.count();
@@ -64,8 +61,7 @@ public class CartaoCreditoTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Cartão Crédito - Alteração")
-    void atualizarCartaoCreditoTest() {
+    void atualizar_sucesso_test() {
         // Prepara os dados iniciais
         var cartaoCredito = new CartaoCredito();
         cartaoCredito.descricao = "Cartão Crédito Atualização";

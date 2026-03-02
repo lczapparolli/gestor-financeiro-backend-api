@@ -1,4 +1,4 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,11 +9,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.CategoriaRepository;
-import br.com.lczapparolli.database.repository.PrevisaoRepository;
+import br.com.lczapparolli.database.entity.Categoria;
+import br.com.lczapparolli.database.entity.Previsao;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -22,7 +21,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade Previsao
  */
 @QuarkusTest
-public class PrevisaoTest {
+public class PrevisaoRepositoryTest {
 
     @Inject
     CategoriaRepository categoriaRepository;
@@ -48,8 +47,7 @@ public class PrevisaoTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Previsão - Inclusão")
-    void incluirPrevisaoTest() {
+    void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = previsaoRepository.count();
         var previsao = new Previsao();
@@ -77,8 +75,7 @@ public class PrevisaoTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Previsão - Alteração")
-    void atualizarPrevisaoTest() {
+    void atualizar_sucesso_test() {
         // Prepara os dados iniciais
         var previsao = new Previsao();
         previsao.categoria = categoriaRepository.findById(idCategoria);
