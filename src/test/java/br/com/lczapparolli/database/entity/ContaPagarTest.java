@@ -1,4 +1,4 @@
-package br.com.lczapparolli.entity;
+package br.com.lczapparolli.database.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,7 +12,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import br.com.lczapparolli.database.repository.CategoriaRepository;
+import br.com.lczapparolli.database.repository.ContaPagarRepository;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 /**
@@ -20,6 +23,12 @@ import jakarta.transaction.Transactional;
  */
 @QuarkusTest
 public class ContaPagarTest {
+
+    @Inject
+    CategoriaRepository categoriaRepository;
+    
+    @Inject
+    ContaPagarRepository contaPagarRepository;
 
     private static Long idCategoria;
 
@@ -29,7 +38,7 @@ public class ContaPagarTest {
         if (idCategoria == null) {
             var categoria = new Categoria();
             categoria.descricao = "Teste Conta a Pagar";
-            categoria.persistAndFlush();
+            categoriaRepository.persistAndFlush(categoria);
             idCategoria = categoria.id;
         }
     }
@@ -42,10 +51,10 @@ public class ContaPagarTest {
     @DisplayName("Entidade ContaPagar - Inclusão")
     void incluirContaPagarTest() {
         // Prepara os dados iniciais
-        var quantidadeInicial = ContaPagar.count();
+        var quantidadeInicial = contaPagarRepository.count();
         var contaPagar = new ContaPagar();
         contaPagar.periodo = LocalDate.now();
-        contaPagar.categoria = Categoria.findById(idCategoria);
+        contaPagar.categoria = categoriaRepository.findById(idCategoria);
         contaPagar.vencimento = LocalDate.now();
         contaPagar.valor = BigDecimal.ONE;
         
@@ -54,10 +63,10 @@ public class ContaPagarTest {
         assertNull(contaPagar.versao);
         
         // Salva a nova conta a pagar
-        contaPagar.persistAndFlush();
+        contaPagarRepository.persistAndFlush(contaPagar);
 
         //Verifica se o registro foi incluído
-        var quantidade = ContaPagar.count();
+        var quantidade = contaPagarRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
         assertNotNull(contaPagar.dataCriacao);
         assertNotNull(contaPagar.versao);
@@ -74,17 +83,17 @@ public class ContaPagarTest {
         // Prepara os dados iniciais
         var contaPagar = new ContaPagar();
         contaPagar.periodo = LocalDate.now();
-        contaPagar.categoria = Categoria.findById(idCategoria);
+        contaPagar.categoria = categoriaRepository.findById(idCategoria);
         contaPagar.vencimento = LocalDate.now();
         contaPagar.valor = BigDecimal.ONE;
-        contaPagar.persistAndFlush();
+        contaPagarRepository.persistAndFlush(contaPagar);
         var criacaoAnterior = contaPagar.dataCriacao;
         var versaoAnterior = contaPagar.versao;
 
         // Procura a conta a pagar inserida e atualiza as informações
-        ContaPagar contaPagarInserida = ContaPagar.findById(contaPagar.id);
+        ContaPagar contaPagarInserida = contaPagarRepository.findById(contaPagar.id);
         contaPagarInserida.valor = BigDecimal.TEN;
-        contaPagarInserida.persistAndFlush();
+        contaPagarRepository.persistAndFlush(contaPagarInserida);
 
         // Verifica se os campos foram atualizados
         assertTrue(criacaoAnterior.isEqual(contaPagarInserida.dataCriacao));

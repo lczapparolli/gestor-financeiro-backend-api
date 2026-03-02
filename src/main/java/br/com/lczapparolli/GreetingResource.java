@@ -2,7 +2,9 @@ package br.com.lczapparolli;
 
 import java.util.List;
 
-import br.com.lczapparolli.entity.Conta;
+import br.com.lczapparolli.database.entity.Conta;
+import br.com.lczapparolli.database.repository.ContaRepository;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -14,10 +16,13 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/hello")
 public class GreetingResource {
 
+    @Inject
+    ContaRepository contaRepository;
+
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public List<String> hello() {
-        return Conta.listAll()
+        return contaRepository.listAll()
                 .stream()
                 .map(item -> item.toString())
                 .toList();
@@ -30,7 +35,7 @@ public class GreetingResource {
     public String criar(String nome) {
         var entity = new Conta();
         entity.descricao = nome;
-        entity.persist();
+        contaRepository.persist(entity);
         return entity.toString();
     }
 
