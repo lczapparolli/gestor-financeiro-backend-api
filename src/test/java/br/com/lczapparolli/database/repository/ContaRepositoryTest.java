@@ -29,12 +29,14 @@ public class ContaRepositoryTest {
   void incluir_sucesso_test() {
     // Prepara os dados iniciais
     var quantidadeInicial = contaRepository.count();
-    var conta = new Conta();
-    conta.descricao = "Conta de teste";
+    var conta = Conta.builder()
+      .descricao("Conta de teste")
+      .ativo(true)
+      .build();
 
     // Verifica se os campos não estão preenchidos
-    assertNull(conta.dataCriacao);
-    assertNull(conta.versao);
+    assertNull(conta.getDataCriacao());
+    assertNull(conta.getVersao());
 
     // Salva a nova conta
     contaRepository.persistAndFlush(conta);
@@ -42,9 +44,8 @@ public class ContaRepositoryTest {
     // Verifica se o registro foi incluído
     var quantidade = contaRepository.count();
     assertEquals(quantidadeInicial + 1, quantidade);
-    assertNotNull(conta.dataCriacao);
-    assertNotNull(conta.versao);
-    assertTrue(conta.ativo);
+    assertNotNull(conta.getDataCriacao());
+    assertNotNull(conta.getVersao());
   }
 
   /**
@@ -54,20 +55,22 @@ public class ContaRepositoryTest {
   @Transactional
   void atualizar_sucesso_test() {
     // Prepara os dados iniciais
-    var conta = new Conta();
-    conta.descricao = "Conta atualizar";
+    var conta = Conta.builder()
+      .descricao("Conta atualizar")
+      .ativo(true)
+      .build();
     contaRepository.persistAndFlush(conta);
-    var criacaoAnterior = conta.dataCriacao;
-    var versaoAnterior = conta.versao;
+    var criacaoAnterior = conta.getDataCriacao();
+    var versaoAnterior = conta.getVersao();
 
     // Procura a conta inserida e atualiza as informações
-    Conta contaInserida = contaRepository.findById(conta.id);
-    contaInserida.descricao = "Descrição atualizada";
+    Conta contaInserida = contaRepository.findById(conta.getId());
+    contaInserida.setDescricao("Descrição atualizada");
     contaRepository.persistAndFlush(contaInserida);
 
     // Verifica se os campos de atualização 
-    assertTrue(criacaoAnterior.isEqual(contaInserida.dataCriacao));
-    assertTrue(versaoAnterior.isBefore(contaInserida.versao));
+    assertTrue(criacaoAnterior.isEqual(contaInserida.getDataCriacao()));
+    assertTrue(versaoAnterior.isBefore(contaInserida.getVersao()));
   }
 
 }

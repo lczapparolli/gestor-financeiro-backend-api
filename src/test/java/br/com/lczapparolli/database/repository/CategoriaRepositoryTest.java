@@ -29,12 +29,14 @@ public class CategoriaRepositoryTest {
   void incluir_sucesso_test() {
     // Prepara os dados iniciais
     var quantidadeInicial = categoriaRepository.count();
-    var categoria = new Categoria();
-    categoria.descricao = "Categoria de teste";
+    var categoria = Categoria.builder()
+      .descricao("Categoria de teste")
+      .ativo(true)
+      .build();
 
     // Verifica se os campos não estão preenchidos
-    assertNull(categoria.dataCriacao);
-    assertNull(categoria.versao);
+    assertNull(categoria.getDataCriacao());
+    assertNull(categoria.getVersao());
 
     // Salva a nova conta
     categoriaRepository.persistAndFlush(categoria);
@@ -42,9 +44,8 @@ public class CategoriaRepositoryTest {
     // Verifica se o registro foi incluído
     var quantidade = categoriaRepository.count();
     assertEquals(quantidadeInicial + 1, quantidade);
-    assertNotNull(categoria.dataCriacao);
-    assertNotNull(categoria.versao);
-    assertTrue(categoria.ativo);
+    assertNotNull(categoria.getDataCriacao());
+    assertNotNull(categoria.getVersao());
   }
 
   /**
@@ -54,20 +55,22 @@ public class CategoriaRepositoryTest {
   @Transactional
   void atualizar_sucesso_test() {
     // Prepara os dados iniciais
-    var categoria = new Categoria();
-    categoria.descricao = "Categoria atualizar";
+    var categoria = Categoria.builder()
+      .descricao("Categoria atualizar")
+      .ativo(true)
+      .build();
     categoriaRepository.persistAndFlush(categoria);
-    var criacaoAnterior = categoria.dataCriacao;
-    var versaoAnterior = categoria.versao;
+    var criacaoAnterior = categoria.getDataCriacao();
+    var versaoAnterior = categoria.getVersao();
 
     // Procura a categoria inserida e atualiza as informações
-    Categoria categoriaInserida = categoriaRepository.findById(categoria.id);
-    categoriaInserida.descricao = "Descrição atualizada";
+    Categoria categoriaInserida = categoriaRepository.findById(categoria.getId());
+    categoriaInserida.setDescricao("Descrição atualizada");
     categoriaRepository.persistAndFlush(categoriaInserida);
 
     // Verifica se os campos de atualização 
-    assertTrue(criacaoAnterior.isEqual(categoriaInserida.dataCriacao));
-    assertTrue(versaoAnterior.isBefore(categoriaInserida.versao));
+    assertTrue(criacaoAnterior.isEqual(categoriaInserida.getDataCriacao()));
+    assertTrue(versaoAnterior.isBefore(categoriaInserida.getVersao()));
   }
 
 }

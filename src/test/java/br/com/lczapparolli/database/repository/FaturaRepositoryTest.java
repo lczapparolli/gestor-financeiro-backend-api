@@ -43,19 +43,23 @@ public class FaturaRepositoryTest {
     @Transactional
     void prepararDados() {
         if (idCartao == null) {
-            var cartao = new CartaoCredito();
-            cartao.descricao = "Teste fatura";
-            cartao.diaVencimento = 1;
-            cartao.diaFechamento = 10;
+            var cartao = CartaoCredito.cartaoCreditoBuilder()
+                .descricao("Teste fatura")
+                .diaVencimento(1)
+                .diaFechamento(10)
+                .ativo(true)
+                .build();
             cartaoCreditoRepository.persistAndFlush(cartao);
-            idCartao = cartao.id;
+            idCartao = cartao.getId();
         }
 
         if (idCategoria == null) {
-            var categoria = new Categoria();
-            categoria.descricao = "Teste Fatura";
+            var categoria = Categoria.builder()
+                .descricao("Teste Fatura")
+                .ativo(true)
+                .build();
             categoriaRepository.persistAndFlush(categoria);
-            idCategoria = categoria.id;
+            idCategoria = categoria.getId();
         }
     }
 
@@ -68,16 +72,18 @@ public class FaturaRepositoryTest {
         // Prepara os dados iniciais
         var quantidadeInicial = faturaRepository.count();
         var quantidadeInicialPagar = contaPagarRepository.count();
-        var fatura = new Fatura();
-        fatura.cartaoCredito = cartaoCreditoRepository.findById(idCartao);
-        fatura.categoria = categoriaRepository.findById(idCategoria);
-        fatura.periodo = LocalDate.now();
-        fatura.vencimento = LocalDate.now();
-        fatura.valor = BigDecimal.ONE;
+        var fatura = Fatura.faturaBuilder()
+            .cartaoCredito(cartaoCreditoRepository.findById(idCartao))
+            .categoria(categoriaRepository.findById(idCategoria))
+            .periodo(LocalDate.now())
+            .vencimento(LocalDate.now())
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         
         // Verifica se os campos não estão preenchidos
-        assertNull(fatura.dataCriacao);
-        assertNull(fatura.versao);
+        assertNull(fatura.getDataCriacao());
+        assertNull(fatura.getVersao());
         
         // Salva a nova fatura
         faturaRepository.persistAndFlush(fatura);
@@ -87,9 +93,8 @@ public class FaturaRepositoryTest {
         var quantidadePagar = contaPagarRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
         assertEquals(quantidadeInicialPagar + 1, quantidadePagar);
-        assertNotNull(fatura.dataCriacao);
-        assertNotNull(fatura.versao);
-        assertTrue(fatura.ativo);
+        assertNotNull(fatura.getDataCriacao());
+        assertNotNull(fatura.getVersao());
     }
 
     /**
@@ -99,24 +104,26 @@ public class FaturaRepositoryTest {
     @Transactional
     void atualizar_sucesso_test() {
         // Prepara os dados iniciais
-        var fatura = new Fatura();
-        fatura.cartaoCredito = cartaoCreditoRepository.findById(idCartao);
-        fatura.categoria = categoriaRepository.findById(idCategoria);
-        fatura.periodo = LocalDate.now();
-        fatura.vencimento = LocalDate.now();
-        fatura.valor = BigDecimal.ONE;
+        var fatura = Fatura.faturaBuilder()
+            .cartaoCredito(cartaoCreditoRepository.findById(idCartao))
+            .categoria(categoriaRepository.findById(idCategoria))
+            .periodo(LocalDate.now())
+            .vencimento(LocalDate.now())
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         faturaRepository.persistAndFlush(fatura);
-        var criacaoAnterior = fatura.dataCriacao;
-        var versaoAnterior = fatura.versao;
+        var criacaoAnterior = fatura.getDataCriacao();
+        var versaoAnterior = fatura.getVersao();
 
         // Procura a previsão inserida e atualiza as informações
-        Fatura faturaInserida = faturaRepository.findById(fatura.id);
-        faturaInserida.valor = BigDecimal.TEN;
+        Fatura faturaInserida = faturaRepository.findById(fatura.getId());
+        faturaInserida.setValor(BigDecimal.TEN);
         faturaRepository.persistAndFlush(faturaInserida);
 
         // Verifica se os campos foram atualizados
-        assertTrue(criacaoAnterior.isEqual(faturaInserida.dataCriacao));
-        assertTrue(versaoAnterior.isBefore(faturaInserida.versao));
+        assertTrue(criacaoAnterior.isEqual(faturaInserida.getDataCriacao()));
+        assertTrue(versaoAnterior.isBefore(faturaInserida.getVersao()));
     }
 
 }

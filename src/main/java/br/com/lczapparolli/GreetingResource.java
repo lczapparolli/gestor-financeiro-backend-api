@@ -33,8 +33,9 @@ public class GreetingResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Transactional
     public String criar(String nome) {
-        var entity = new Conta();
-        entity.descricao = nome;
+        var entity = Conta.builder()
+            .descricao(nome)
+            .build();
         contaRepository.persist(entity);
         return entity.toString();
     }

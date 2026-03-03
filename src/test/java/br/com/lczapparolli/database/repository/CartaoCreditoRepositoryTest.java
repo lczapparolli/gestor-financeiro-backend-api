@@ -33,14 +33,16 @@ public class CartaoCreditoRepositoryTest {
         // Prepara os dados iniciais
         var quantidadeInicial = cartaoCreditoRepository.count();
         var quantidadeInicialConta = contaRepository.count();
-        var cartaoCredito = new CartaoCredito();
-        cartaoCredito.descricao = "Cartão Crédito teste";
-        cartaoCredito.diaVencimento = 10;
-        cartaoCredito.diaFechamento = 31;
+        var cartaoCredito = CartaoCredito.cartaoCreditoBuilder()
+            .descricao("Cartão Crédito teste")
+            .diaVencimento(10)
+            .diaFechamento(31)
+            .ativo(true)
+            .build();
         
         // Verifica se os campos não estão preenchidos
-        assertNull(cartaoCredito.dataCriacao);
-        assertNull(cartaoCredito.versao);
+        assertNull(cartaoCredito.getDataCriacao());
+        assertNull(cartaoCredito.getVersao());
         
         // Salva o novo cartão
         cartaoCreditoRepository.persistAndFlush(cartaoCredito);
@@ -51,9 +53,8 @@ public class CartaoCreditoRepositoryTest {
         assertEquals(quantidadeInicial + 1, quantidade);
         // Verifica se incluiu uma nova Conta
         assertEquals(quantidadeInicialConta + 1, quantidadeConta);
-        assertNotNull(cartaoCredito.dataCriacao);
-        assertNotNull(cartaoCredito.versao);
-        assertTrue(cartaoCredito.ativo);
+        assertNotNull(cartaoCredito.getDataCriacao());
+        assertNotNull(cartaoCredito.getVersao());
     }
 
     /**
@@ -63,22 +64,24 @@ public class CartaoCreditoRepositoryTest {
     @Transactional
     void atualizar_sucesso_test() {
         // Prepara os dados iniciais
-        var cartaoCredito = new CartaoCredito();
-        cartaoCredito.descricao = "Cartão Crédito Atualização";
-        cartaoCredito.diaVencimento = 10;
-        cartaoCredito.diaFechamento = 31;
+        var cartaoCredito = CartaoCredito.cartaoCreditoBuilder()
+            .descricao("Cartão Crédito Atualização")
+            .diaVencimento(10)
+            .diaFechamento(31)
+            .ativo(true)
+            .build();
         cartaoCreditoRepository.persistAndFlush(cartaoCredito);
-        var criacaoAnterior = cartaoCredito.dataCriacao;
-        var versaoAnterior = cartaoCredito.versao;
+        var criacaoAnterior = cartaoCredito.getDataCriacao();
+        var versaoAnterior = cartaoCredito.getVersao();
 
         // Procura o cartão inserido e atualiza as informações
-        CartaoCredito cartaoCreditoInserido = cartaoCreditoRepository.findById(cartaoCredito.id);
-        cartaoCreditoInserido.diaVencimento = 11;
+        CartaoCredito cartaoCreditoInserido = cartaoCreditoRepository.findById(cartaoCredito.getId());
+        cartaoCreditoInserido.setDiaVencimento(11);
         cartaoCreditoRepository.persistAndFlush(cartaoCreditoInserido);
 
         // Verifica se os campos foram atualizados
-        assertTrue(criacaoAnterior.isEqual(cartaoCreditoInserido.dataCriacao));
-        assertTrue(versaoAnterior.isBefore(cartaoCreditoInserido.versao));
+        assertTrue(criacaoAnterior.isEqual(cartaoCreditoInserido.getDataCriacao()));
+        assertTrue(versaoAnterior.isBefore(cartaoCreditoInserido.getVersao()));
     }
 
 }
