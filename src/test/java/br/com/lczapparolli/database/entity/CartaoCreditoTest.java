@@ -1,4 +1,4 @@
-package br.com.lczapparolli.entity;
+package br.com.lczapparolli.database.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -8,7 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import br.com.lczapparolli.database.repository.CartaoCreditoRepository;
+import br.com.lczapparolli.database.repository.ContaRepository;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 /**
@@ -16,6 +19,12 @@ import jakarta.transaction.Transactional;
  */
 @QuarkusTest
 public class CartaoCreditoTest {
+
+    @Inject
+    CartaoCreditoRepository cartaoCreditoRepository;
+
+    @Inject
+    ContaRepository contaRepository;
 
     /**
      * Verifica se o mapeamento da entidade permite a inclusão de novos registros
@@ -25,8 +34,8 @@ public class CartaoCreditoTest {
     @DisplayName("Entidade Cartão Crédito - Inclusão")
     void incluirCartaoCreditoTest() {
         // Prepara os dados iniciais
-        var quantidadeInicial = CartaoCredito.count();
-        var quantidadeInicialConta = Conta.count();
+        var quantidadeInicial = cartaoCreditoRepository.count();
+        var quantidadeInicialConta = contaRepository.count();
         var cartaoCredito = new CartaoCredito();
         cartaoCredito.descricao = "Cartão Crédito teste";
         cartaoCredito.diaVencimento = 10;
@@ -37,11 +46,11 @@ public class CartaoCreditoTest {
         assertNull(cartaoCredito.versao);
         
         // Salva o novo cartão
-        cartaoCredito.persistAndFlush();
+        cartaoCreditoRepository.persistAndFlush(cartaoCredito);
 
         // Verifica se o registro foi incluído
-        var quantidade = CartaoCredito.count();
-        var quantidadeConta = Conta.count();
+        var quantidade = cartaoCreditoRepository.count();
+        var quantidadeConta = contaRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
         // Verifica se incluiu uma nova Conta
         assertEquals(quantidadeInicialConta + 1, quantidadeConta);
@@ -62,14 +71,14 @@ public class CartaoCreditoTest {
         cartaoCredito.descricao = "Cartão Crédito Atualização";
         cartaoCredito.diaVencimento = 10;
         cartaoCredito.diaFechamento = 31;
-        cartaoCredito.persistAndFlush();
+        cartaoCreditoRepository.persistAndFlush(cartaoCredito);
         var criacaoAnterior = cartaoCredito.dataCriacao;
         var versaoAnterior = cartaoCredito.versao;
 
         // Procura o cartão inserido e atualiza as informações
-        CartaoCredito cartaoCreditoInserido = CartaoCredito.findById(cartaoCredito.id);
+        CartaoCredito cartaoCreditoInserido = cartaoCreditoRepository.findById(cartaoCredito.id);
         cartaoCreditoInserido.diaVencimento = 11;
-        cartaoCreditoInserido.persistAndFlush();
+        cartaoCreditoRepository.persistAndFlush(cartaoCreditoInserido);
 
         // Verifica se os campos foram atualizados
         assertTrue(criacaoAnterior.isEqual(cartaoCreditoInserido.dataCriacao));

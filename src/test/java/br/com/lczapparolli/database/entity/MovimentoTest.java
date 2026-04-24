@@ -1,4 +1,4 @@
-package br.com.lczapparolli.entity;
+package br.com.lczapparolli.database.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -12,7 +12,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import br.com.lczapparolli.database.repository.CategoriaRepository;
+import br.com.lczapparolli.database.repository.ContaRepository;
+import br.com.lczapparolli.database.repository.MovimentoRepository;
 import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 /**
@@ -20,6 +24,15 @@ import jakarta.transaction.Transactional;
  */
 @QuarkusTest
 public class MovimentoTest {
+
+    @Inject
+    ContaRepository contaRepository;
+
+    @Inject
+    CategoriaRepository categoriaRepository;
+
+    @Inject
+    MovimentoRepository movimentoRepository;
 
     private static Long idCategoria;
     private static Long idConta;
@@ -30,14 +43,14 @@ public class MovimentoTest {
         if (idCategoria == null) {
             var categoria = new Categoria();
             categoria.descricao  = "Teste movimento";
-            categoria.persistAndFlush();
+            categoriaRepository.persistAndFlush(categoria);
             idCategoria = categoria.id;
         }
 
         if (idConta == null) {
             var conta = new Conta();
             conta.descricao = "Teste movimento";
-            conta.persistAndFlush();
+            contaRepository.persistAndFlush(conta);
             idConta = conta.id;
         }
     }
@@ -50,10 +63,10 @@ public class MovimentoTest {
     @DisplayName("Entidade Movimento - Inclusão")
     void incluirMovimentoTest() {
         // Prepara os dados iniciais
-        var quantidadeInicial = Movimento.count();
+        var quantidadeInicial = movimentoRepository.count();
         var movimento = new Movimento();
-        movimento.categoria = Categoria.findById(idCategoria);
-        movimento.conta = Conta.findById(idConta);
+        movimento.categoria = categoriaRepository.findById(idCategoria);
+        movimento.conta = contaRepository.findById(idConta);
         movimento.periodo = LocalDate.now();
         movimento.data = LocalDate.now();
         movimento.descricao = "Teste inclusão";
@@ -64,10 +77,10 @@ public class MovimentoTest {
         assertNull(movimento.versao);
 
         // Salva o novo movimento
-        movimento.persistAndFlush();
+        movimentoRepository.persistAndFlush(movimento);
 
         // Verifica se o registros foi incluído
-        var quantidade = Movimento.count();
+        var quantidade = movimentoRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
         assertNotNull(movimento.dataCriacao);
         assertNotNull(movimento.versao);
@@ -83,20 +96,20 @@ public class MovimentoTest {
     void atualizacaoMovimentoTest() {
         // Prepara os dados iniciais
         var movimento = new Movimento();
-        movimento.categoria = Categoria.findById(idCategoria);
-        movimento.conta = Conta.findById(idConta);
+        movimento.categoria = categoriaRepository.findById(idCategoria);
+        movimento.conta = contaRepository.findById(idConta);
         movimento.periodo = LocalDate.now();
         movimento.data = LocalDate.now();
         movimento.descricao = "Teste atualização";
         movimento.valor = BigDecimal.ONE;
-        movimento.persistAndFlush();
+        movimentoRepository.persistAndFlush(movimento);
         var criacaoAnterior = movimento.dataCriacao;
         var versaoAnterior = movimento.versao;
 
         // Procura o movimento inserido e atualiza as informações
-        Movimento movimentoInserido = Movimento.findById(movimento.id);
+        Movimento movimentoInserido = movimentoRepository.findById(movimento.id);
         movimentoInserido.valor = BigDecimal.TEN;
-        movimentoInserido.persistAndFlush();
+        movimentoRepository.persistAndFlush(movimentoInserido);
 
         // Verifica se os campos foram atualizados
         assertTrue(criacaoAnterior.isEqual(movimentoInserido.dataCriacao));

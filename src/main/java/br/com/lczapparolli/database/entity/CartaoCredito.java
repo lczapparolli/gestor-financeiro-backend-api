@@ -1,4 +1,4 @@
-package br.com.lczapparolli.entity;
+package br.com.lczapparolli.database.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,10 +1,9 @@
-package br.com.lczapparolli.entity;
+package br.com.lczapparolli.database.entity;
 
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,7 +14,7 @@ import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "CATEGORIA")
-public class Categoria extends PanacheEntityBase {
+public class Categoria {
   
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
