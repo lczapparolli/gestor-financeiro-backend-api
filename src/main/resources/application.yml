@@ -2,6 +2,13 @@
   quarkus:
     datasource:
       db-kind: h2
+      jdbc:
+        url: jdbc:h2:mem:gestor_financeiro_backend_db;MODE=MySQL
+    hibernate-orm:
+      schema-management:
+        strategy: none
+    flyway:
+      migrate-at-start: true
 
 '%dev':
   quarkus:
@@ -10,9 +17,11 @@
       username: gestor_financeiro_backend_api
       password: gestor_financeiro_backend_api
       jdbc:
-        url: jdbc:mysql://localhost:3306/gestor_financeiro_backend_db
+        url: jdbc:mysql://dev-gestor-financeiro-backend-db:3306/gestor_financeiro_backend_db
       devservices:
         enabled: false
     hibernate-orm:
       schema-management:
-        strategy: update
+        strategy: none
+    flyway:
+      migrate-at-start: true

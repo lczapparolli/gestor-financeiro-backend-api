@@ -1,55 +1,49 @@
 package br.com.lczapparolli.entity;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Objects;
-
 import org.hibernate.annotations.CreationTimestamp;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 @Entity
+@Table(name = "FATURA")
 public class Fatura extends PanacheEntityBase {
 
-  @EmbeddedId
-  public FaturaId id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", nullable = false)
+  public Long id;
 
-  @OneToOne
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "id_cartao_credito", nullable = false)
+  public CartaoCredito cartaoCredito;
+
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "id_periodo", nullable = false)
+  public Periodo periodo;
+
+  @OneToOne(optional = false)
+  @JoinColumn(name = "id_conta_pagar")
   public ContaPagar contaPagar;
 
+  @Column(name = "ativo", nullable = false)
+  public boolean ativo = true;
+
   @CreationTimestamp
+  @Column(name = "data_criacao", nullable = false, updatable = false)
   public LocalDateTime dataCriacao;
 
-  @jakarta.persistence.Version
+  @Version
+  @Column(name = "versao", nullable = false)
   public LocalDateTime versao;
-
-  @Embeddable
-  public static class FaturaId implements Serializable {
-
-    public Long conta;
-    public Long periodo;
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(this.conta, this.periodo);
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj)
-        return true;
-      if (obj == null)
-        return false;
-      if (getClass() != obj.getClass())
-        return false;
-
-      FaturaId other = (FaturaId) obj;
-      return Objects.equals(this.conta, other.conta) &&
-          Objects.equals(this.periodo, other.periodo);
-    }
-  }
 
 }
