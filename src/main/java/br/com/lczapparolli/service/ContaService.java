@@ -103,4 +103,22 @@ public class ContaService {
     contaRepository.persist(conta);
   }
 
+  @Transactional
+  public void reativarConta(Long id) throws ValidacaoException {
+    var resultadoConsulta = contaRepository.findByIdOptional(id);
+    if (resultadoConsulta.isEmpty()) {
+      throw new ValidacaoException("Conta não encontrada");
+    }
+
+    if (resultadoConsulta.get().isAtivo()) {
+      throw new ValidacaoException("A conta já está ativa");
+    }
+
+    Conta conta = resultadoConsulta.get();
+    conta.setAtivo(true);
+
+    contaRepository.persist(conta);
+
+  }
+
 }

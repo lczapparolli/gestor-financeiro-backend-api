@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -323,18 +322,50 @@ public class ContaServiceTest {
   }
 
   @Test
-  void reativarConta_sucesso_test() {
-    fail("Não implementado");
+  void reativarConta_sucesso_test() throws ValidacaoException {
+    var conta = Conta.builder()
+        .id(4L)
+        .descricao("Teste ativação")
+        .ativo(false)
+        .dataCriacao(LocalDateTime.now())
+        .versao(LocalDateTime.now())
+        .build();
+    Mockito.doReturn(Optional.of(conta)).when(contaRepository).findByIdOptional(4L);
+
+    ArgumentCaptor<Conta> contaCaptor = ArgumentCaptor.forClass(Conta.class);
+    contaService.reativarConta(4L);
+
+    Mockito.verify(contaRepository, times(1)).persist(contaCaptor.capture());
+    assertNotNull(contaCaptor.getValue());
+    assertTrue(contaCaptor.getValue().isAtivo());
+    assertEquals(4L, contaCaptor.getValue().getId());
   }
 
   @Test
   void reativarConta_contaAtiva_deveGerarErro_test() {
-    fail("Não implementado");
+    var conta = Conta.builder()
+        .id(4L)
+        .descricao("Teste ativação")
+        .ativo(true)
+        .dataCriacao(LocalDateTime.now())
+        .versao(LocalDateTime.now())
+        .build();
+    Mockito.doReturn(Optional.of(conta)).when(contaRepository).findByIdOptional(4L);
+
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.reativarConta(4L));
+    assertEquals("A conta já está ativa", excecao.getMessage());
+
+    Mockito.verify(contaRepository, never()).persist(any(Conta.class));
   }
 
   @Test
   void reativarConta_contaInexistente_deveGerarErro_test() {
-    fail("Não implementado");
+    Mockito.doReturn(Optional.empty()).when(contaRepository).findByIdOptional(4L);
+
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.reativarConta(4L));
+    assertEquals("Conta não encontrada", excecao.getMessage());
+
+    Mockito.verify(contaRepository, never()).persist(any(Conta.class));
   }
 
 }
