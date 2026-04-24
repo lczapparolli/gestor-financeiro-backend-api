@@ -1,6 +1,7 @@
 package br.com.lczapparolli.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -28,9 +29,8 @@ public class Previsao extends PanacheEntityBase {
   @JoinColumn(name = "id_categoria", nullable = false)
   public Categoria categoria;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "id_periodo", nullable = false)
-  public Periodo periodo;
+  @Column(name = "periodo", nullable = false)
+  public LocalDate periodo;
 
   @Column(name = "valor", nullable = false, precision = 19, scale = 2)
   public BigDecimal valor;
