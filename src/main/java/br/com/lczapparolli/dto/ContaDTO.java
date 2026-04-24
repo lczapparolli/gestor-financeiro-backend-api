@@ -13,7 +13,8 @@ import lombok.Setter;
 @Builder
 public class ContaDTO {
 
-    private Long id;
-    private String descricao;
+  private Long id;
+  private String descricao;
+  private boolean ativo;
 
 }

@@ -1,6 +1,8 @@
 package br.com.lczapparolli.service;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import br.com.lczapparolli.database.entity.Conta;
 import br.com.lczapparolli.database.repository.ContaRepository;
@@ -16,6 +18,25 @@ public class ContaService {
 
   @Inject
   ContaRepository contaRepository;
+
+  public Stream<ContaDTO> listarContas(Boolean ativas) {
+    Stream<Conta> listaContas;
+    if (Objects.isNull(ativas)) {
+      listaContas = contaRepository.streamAll();
+    } else {
+      listaContas = contaRepository.listarPorSituacao(ativas);
+    }
+
+    return listaContas
+        .map(conta -> ContaDTO.builder().id(conta.getId()).descricao(conta.getDescricao()).ativo(conta.isAtivo())
+            .build());
+  }
+
+  public Optional<ContaDTO> obterConta(Long idConta) {
+    return contaRepository.findByIdOptional(idConta)
+        .map(conta -> ContaDTO.builder().id(conta.getId()).descricao(conta.getDescricao()).ativo(conta.isAtivo())
+            .build());
+  }
 
   @Transactional
   public ContaDTO inserirConta(ContaDTO contaDTO) throws GerenciadorException {
@@ -44,12 +65,13 @@ public class ContaService {
     contaRepository.persist(conta);
 
     contaDTO.setId(conta.getId());
+    contaDTO.setAtivo(true);
 
     return contaDTO;
   }
 
   @Transactional
-  public ContaDTO atualizarConta(ContaDTO contaDTO) throws ValidacaoException {
+  public ContaDTO atualizarConta(Long idConta, ContaDTO contaDTO) throws GerenciadorException {
     if (Objects.isNull(contaDTO)) {
       throw new ValidacaoException("Os dados estão vazios");
     }
@@ -58,12 +80,12 @@ public class ContaService {
       throw new ValidacaoException("A descrição precisa ser preenchida");
     }
 
-    if (Objects.isNull(contaDTO.getId()) || contaDTO.getId().compareTo(0L) <= 0) {
+    if (Objects.isNull(idConta) || idConta.compareTo(0L) <= 0) {
       throw new ValidacaoException("O id precisa ser preenchido");
     }
 
     var pesquisa = contaRepository.findByDescricao(contaDTO.getDescricao());
-    if (pesquisa.isPresent() && pesquisa.get().getId() != contaDTO.getId()) {
+    if (pesquisa.isPresent() && pesquisa.get().getId() != idConta) {
       if (!pesquisa.get().isAtivo()) {
         throw new ValidacaoException("Já existe uma conta desativada com a mesma descrição");
       }
@@ -71,7 +93,7 @@ public class ContaService {
       throw new ValidacaoException("Já existe uma conta com a mesma descrição");
     }
 
-    var pesquisaId = contaRepository.findByIdOptional(contaDTO.getId());
+    var pesquisaId = contaRepository.findByIdOptional(idConta);
     if (pesquisaId.isEmpty()) {
       throw new ValidacaoException("Conta não encontrada");
     }
@@ -79,15 +101,20 @@ public class ContaService {
       throw new ValidacaoException("A conta está desativada");
     }
 
-    pesquisaId.get().setDescricao(contaDTO.getDescricao());
+    var conta = pesquisaId.get();
+    conta.setDescricao(contaDTO.getDescricao());
 
-    contaRepository.persist(pesquisaId.get());
+    contaRepository.persist(conta);
 
-    return contaDTO;
+    return ContaDTO.builder()
+        .id(conta.getId())
+        .descricao(conta.getDescricao())
+        .ativo(conta.isAtivo())
+        .build();
   }
 
   @Transactional
-  public void desativarConta(Long id) throws ValidacaoException {
+  public void desativarConta(Long id) throws GerenciadorException {
     var resultadoConsulta = contaRepository.findByIdOptional(id);
     if (resultadoConsulta.isEmpty()) {
       throw new ValidacaoException("Conta não encontrada");
@@ -104,7 +131,7 @@ public class ContaService {
   }
 
   @Transactional
-  public void reativarConta(Long id) throws ValidacaoException {
+  public void reativarConta(Long id) throws GerenciadorException {
     var resultadoConsulta = contaRepository.findByIdOptional(id);
     if (resultadoConsulta.isEmpty()) {
       throw new ValidacaoException("Conta não encontrada");

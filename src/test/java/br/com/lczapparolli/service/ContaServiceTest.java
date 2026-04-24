@@ -128,7 +128,7 @@ public class ContaServiceTest {
   }
 
   @Test
-  void atualizarConta_sucesso_test() throws ValidacaoException {
+  void atualizarConta_sucesso_test() throws GerenciadorException {
     // Preparando ferramentas de mock
     ArgumentCaptor<@NonNull Conta> contaCaptor = ArgumentCaptor.forClass(Conta.class);
     Mockito.doReturn(Optional.of(Conta.builder().id(2L).descricao("Objeto salvo").ativo(true).build()))
@@ -138,10 +138,9 @@ public class ContaServiceTest {
 
     // Executando método
     var contaDTO = ContaDTO.builder()
-        .id(2L)
         .descricao("Teste service")
         .build();
-    var resultado = contaService.atualizarConta(contaDTO);
+    var resultado = contaService.atualizarConta(2L, contaDTO);
 
     // Valida o resultado
     assertNotNull(resultado);
@@ -170,10 +169,9 @@ public class ContaServiceTest {
 
     // Executando método
     var contaDTO = ContaDTO.builder()
-        .id(2L)
         .descricao("Teste service")
         .build();
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(2L, contaDTO));
     assertEquals("A conta está desativada", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -182,7 +180,7 @@ public class ContaServiceTest {
 
   @Test
   void atualizarConta_parametroNulo_deveGerarErro_test() {
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(null));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(2L, null));
     assertEquals("Os dados estão vazios", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -194,10 +192,9 @@ public class ContaServiceTest {
   @NullSource
   void atualizarConta_descricaoVazia_deveGerarErro_test(String descricao) {
     var contaDTO = ContaDTO.builder()
-        .id(2L)
         .descricao(descricao)
         .build();
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(2L, contaDTO));
     assertEquals("A descrição precisa ser preenchida", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -215,10 +212,9 @@ public class ContaServiceTest {
     Mockito.doReturn(Optional.of(contaMock)).when(contaRepository).findByDescricao(descricao);
 
     var contaDTO = ContaDTO.builder()
-        .id(2L)
         .descricao(descricao)
         .build();
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(2L, contaDTO));
     assertEquals("Já existe uma conta com a mesma descrição", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -230,16 +226,14 @@ public class ContaServiceTest {
     String descricao = "Teste duplicado";
     Conta contaMock = Conta.builder()
         .descricao(descricao)
-        .id(1L)
         .ativo(false)
         .build();
     Mockito.doReturn(Optional.of(contaMock)).when(contaRepository).findByDescricao(descricao);
 
     var contaDTO = ContaDTO.builder()
-        .id(2L)
         .descricao(descricao)
         .build();
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(2L, contaDTO));
     assertEquals("Já existe uma conta desativada com a mesma descrição", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -251,10 +245,9 @@ public class ContaServiceTest {
   @NullSource
   void atualizarConta_idVazio_deveGerarErro_test(Long id) {
     var contaDTO = ContaDTO.builder()
-        .id(id)
         .descricao("Teste service")
         .build();
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(id, contaDTO));
     assertEquals("O id precisa ser preenchido", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -264,10 +257,9 @@ public class ContaServiceTest {
   @Test
   void atualizarConta_idNaoEncontrado_deveGerarErro_test() {
     var contaDTO = ContaDTO.builder()
-        .id(2L)
         .descricao("Teste service")
         .build();
-    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+    var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(2L, contaDTO));
     assertEquals("Conta não encontrada", excecao.getMessage());
 
     // Verificando a chamada ao repositório
@@ -275,7 +267,7 @@ public class ContaServiceTest {
   }
 
   @Test
-  void desativarConta_sucesso_test() throws ValidacaoException {
+  void desativarConta_sucesso_test() throws GerenciadorException {
     var conta = Conta.builder()
         .id(3L)
         .descricao("Teste desativação")
@@ -322,7 +314,7 @@ public class ContaServiceTest {
   }
 
   @Test
-  void reativarConta_sucesso_test() throws ValidacaoException {
+  void reativarConta_sucesso_test() throws GerenciadorException {
     var conta = Conta.builder()
         .id(4L)
         .descricao("Teste ativação")
