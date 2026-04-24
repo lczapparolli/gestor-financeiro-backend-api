@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
@@ -71,6 +72,16 @@ public class ContaRepositoryTest {
     // Verifica se os campos de atualização 
     assertTrue(criacaoAnterior.isEqual(contaInserida.getDataCriacao()));
     assertTrue(versaoAnterior.isBefore(contaInserida.getVersao()));
+  }
+
+  @Test
+  void findByDescricao_sucesso_test() {
+    fail("Não implementado");
+  }
+
+  @Test
+  void findByDescricao_ignoraCaixaAlta_sucesso_test() {
+    fail("Não implementado");
   }
 
 }
