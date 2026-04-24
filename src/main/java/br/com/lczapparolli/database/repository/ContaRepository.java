@@ -9,8 +9,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 @ApplicationScoped
 public class ContaRepository implements PanacheRepository<Conta> {
 
-    public Optional<Conta> findByDescricao(String descricao) {
-        return find("lower(descricao) = lower(?)", descricao).singleResultOptional();
-    }
-    
+  public Optional<Conta> findByDescricao(String descricao) {
+    return find("lower(descricao) = lower(?1)", descricao).firstResultOptional();
+  }
+
 }
