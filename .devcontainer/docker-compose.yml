@@ -17,6 +17,7 @@ services:
       resources:
         limits:
           memory: 1g
+          cpus: '2.0'
 
   db:
     image: mysql:8.4.7
@@ -36,6 +37,7 @@ services:
       resources:
         limits:
           memory: 256m
+          cpus: '1.0'
 
 networks:
   dev-network:

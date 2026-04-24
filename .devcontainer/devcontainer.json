@@ -14,7 +14,8 @@
 				"vscjava.vscode-java-pack", // Pacote essencial Java (Language Support, Debugger, Maven, etc)
 				"redhat.vscode-quarkus", // Extensão oficial do Quarkus
 				"redhat.fabric8-analytics", // Análise de dependências e vulnerabilidades
-				"ms-azuretools.vscode-docker" // Auxilia caso use Docker no workflow do Quarkus
+				"ms-azuretools.vscode-docker", // Auxilia caso use Docker no workflow do Quarkus
+				"cweijan.vscode-mysql-client2" // Utilitário para manutenção de banco de dados
 			]
 		}
 	},
