@@ -1,4 +1,4 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,13 +9,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.CartaoCreditoRepository;
-import br.com.lczapparolli.database.repository.CategoriaRepository;
-import br.com.lczapparolli.database.repository.ContaPagarRepository;
-import br.com.lczapparolli.database.repository.FaturaRepository;
+import br.com.lczapparolli.database.entity.CartaoCredito;
+import br.com.lczapparolli.database.entity.Categoria;
+import br.com.lczapparolli.database.entity.Fatura;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -24,7 +22,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade Fatura
  */
 @QuarkusTest
-public class FaturaTest {
+public class FaturaRepositoryTest {
 
     @Inject
     CartaoCreditoRepository cartaoCreditoRepository;
@@ -66,8 +64,7 @@ public class FaturaTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Fatura - Inclusão")
-    void incluirFaturaTest() {
+    void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = faturaRepository.count();
         var quantidadeInicialPagar = contaPagarRepository.count();
@@ -100,8 +97,7 @@ public class FaturaTest {
      */
     @Test
     @Transactional
-    @DisplayName("Entidade Fatura - Alteração")
-    void atualizarFaturaTest() {
+    void atualizar_sucesso_test() {
         // Prepara os dados iniciais
         var fatura = new Fatura();
         fatura.cartaoCredito = cartaoCreditoRepository.findById(idCartao);

@@ -1,14 +1,13 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.ContaRepository;
+import br.com.lczapparolli.database.entity.Conta;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,7 +16,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade Conta
  */
 @QuarkusTest
-public class ContaTest {
+public class ContaRepositoryTest {
 
   @Inject
   ContaRepository contaRepository;
@@ -27,8 +26,7 @@ public class ContaTest {
    */
   @Test
   @Transactional
-  @DisplayName("Entidade Conta - Inclusão")
-  void incluirContaTest() {
+  void incluir_sucesso_test() {
     // Prepara os dados iniciais
     var quantidadeInicial = contaRepository.count();
     var conta = new Conta();
@@ -54,8 +52,7 @@ public class ContaTest {
    */
   @Test
   @Transactional
-  @DisplayName("Entidade Conta - Alteração")
-  void atualizarContaTest() {
+  void atualizar_sucesso_test() {
     // Prepara os dados iniciais
     var conta = new Conta();
     conta.descricao = "Conta atualizar";

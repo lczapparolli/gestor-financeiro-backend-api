@@ -1,14 +1,13 @@
-package br.com.lczapparolli.database.entity;
+package br.com.lczapparolli.database.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import br.com.lczapparolli.database.repository.CategoriaRepository;
+import br.com.lczapparolli.database.entity.Categoria;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,7 +16,7 @@ import jakarta.transaction.Transactional;
  * Testa o mapeamento da entidade Categoria
  */
 @QuarkusTest
-public class CategoriaTest {
+public class CategoriaRepositoryTest {
 
   @Inject
   CategoriaRepository categoriaRepository;
@@ -27,8 +26,7 @@ public class CategoriaTest {
    */
   @Test
   @Transactional
-  @DisplayName("Entidade Categoria - Inclusão")
-  void incluirCategoriaTest() {
+  void incluir_sucesso_test() {
     // Prepara os dados iniciais
     var quantidadeInicial = categoriaRepository.count();
     var categoria = new Categoria();
@@ -54,8 +52,7 @@ public class CategoriaTest {
    */
   @Test
   @Transactional
-  @DisplayName("Entidade Categoria - Alteração")
-  void atualizarCategoriaTest() {
+  void atualizar_sucesso_test() {
     // Prepara os dados iniciais
     var categoria = new Categoria();
     categoria.descricao = "Categoria atualizar";
