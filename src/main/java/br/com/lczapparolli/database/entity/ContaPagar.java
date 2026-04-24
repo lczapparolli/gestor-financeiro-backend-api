@@ -17,7 +17,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "CONTA_PAGAR")
@@ -26,30 +36,30 @@ public class ContaPagar {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
-  public Long id;
+  private Long id;
 
   @Column(name = "periodo", nullable = false)
-  public LocalDate periodo;
+  private LocalDate periodo;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "id_categoria", nullable = false)
-  public Categoria categoria;
+  private Categoria categoria;
 
   @Column(name = "vencimento", nullable = false)
-  public LocalDate vencimento;
+  private LocalDate vencimento;
 
   @Column(name = "valor", nullable = false, precision = 19, scale = 2)
-  public BigDecimal valor;
+  private BigDecimal valor;
 
   @Column(name = "ativo", nullable = false)
-  public boolean ativo = true;
+  private boolean ativo;
 
   @CreationTimestamp
   @Column(name = "data_criacao", nullable = false, updatable = false)
-  public LocalDateTime dataCriacao;
+  private LocalDateTime dataCriacao;
 
   @Version
   @Column(name = "versao", nullable = false)
-  public LocalDateTime versao;
+  private LocalDateTime versao;
 
 }

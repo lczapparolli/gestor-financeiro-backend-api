@@ -15,7 +15,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "MOVIMENTO")
 public class Movimento {
@@ -23,36 +33,36 @@ public class Movimento {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  public Long id;
+  private Long id;
 
   @Column(name = "descricao")
-  public String descricao;
+  private String descricao;
 
   @Column(name = "valor", precision = 19, scale = 2)
-  public BigDecimal valor;
+  private BigDecimal valor;
 
   @Column(name = "data", nullable = false)
-  public LocalDate data;
+  private LocalDate data;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "id_conta", nullable = false)
-  public Conta conta;
+  private Conta conta;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "id_categoria", nullable = false)
-  public Categoria categoria;
+  private Categoria categoria;
 
   @Column(name = "periodo", nullable = false)
-  public LocalDate periodo;
+  private LocalDate periodo;
 
   @Column(name = "ativo", nullable = false)
-  public boolean ativo = true;
+  private boolean ativo;
 
   @CreationTimestamp
   @Column(name = "data_criacao", nullable = false, updatable = false)
-  public LocalDateTime dataCriacao;
+  private LocalDateTime dataCriacao;
 
   @Version
   @Column(name = "versao", nullable = false)
-  public LocalDateTime versao;
+  private LocalDateTime versao;
 }

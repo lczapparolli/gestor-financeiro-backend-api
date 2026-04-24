@@ -35,10 +35,12 @@ public class PrevisaoRepositoryTest {
     @Transactional
     void prepararDados() {
         if (idCategoria == null) {
-            var categoria = new Categoria();
-            categoria.descricao = "Teste previsão";
+            var categoria = Categoria.builder()
+                .descricao("Teste previsão")
+                .ativo(true)
+                .build();
             categoriaRepository.persistAndFlush(categoria);
-            idCategoria = categoria.id;
+            idCategoria = categoria.getId();
         }
     }
 
@@ -50,14 +52,16 @@ public class PrevisaoRepositoryTest {
     void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = previsaoRepository.count();
-        var previsao = new Previsao();
-        previsao.categoria = categoriaRepository.findById(idCategoria);
-        previsao.periodo = LocalDate.now();
-        previsao.valor = BigDecimal.ONE;
+        var previsao = Previsao.builder()
+            .categoria(categoriaRepository.findById(idCategoria))
+            .periodo(LocalDate.now())
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         
         // Verifica se os campos não estão preenchidos
-        assertNull(previsao.dataCriacao);
-        assertNull(previsao.versao);
+        assertNull(previsao.getDataCriacao());
+        assertNull(previsao.getVersao());
         
         // Salva a nova previsão
         previsaoRepository.persistAndFlush(previsao);
@@ -65,9 +69,8 @@ public class PrevisaoRepositoryTest {
         //Verifica se o registro foi incluído
         var quantidade = previsaoRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
-        assertNotNull(previsao.dataCriacao);
-        assertNotNull(previsao.versao);
-        assertTrue(previsao.ativo);
+        assertNotNull(previsao.getDataCriacao());
+        assertNotNull(previsao.getVersao());
     }
 
     /**
@@ -77,22 +80,24 @@ public class PrevisaoRepositoryTest {
     @Transactional
     void atualizar_sucesso_test() {
         // Prepara os dados iniciais
-        var previsao = new Previsao();
-        previsao.categoria = categoriaRepository.findById(idCategoria);
-        previsao.periodo = LocalDate.now();
-        previsao.valor = BigDecimal.ONE;
+        var previsao = Previsao.builder()
+            .categoria(categoriaRepository.findById(idCategoria))
+            .periodo(LocalDate.now())
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         previsaoRepository.persistAndFlush(previsao);
-        var criacaoAnterior = previsao.dataCriacao;
-        var versaoAnterior = previsao.versao;
+        var criacaoAnterior = previsao.getDataCriacao();
+        var versaoAnterior = previsao.getVersao();
 
         // Procura a previsão inserida e atualiza as informações
-        Previsao previsaoInserida = previsaoRepository.findById(previsao.id);
-        previsaoInserida.valor = BigDecimal.TEN;
+        Previsao previsaoInserida = previsaoRepository.findById(previsao.getId());
+        previsaoInserida.setValor(BigDecimal.TEN);
         previsaoRepository.persistAndFlush(previsaoInserida);
 
         // Verifica se os campos foram atualizados
-        assertTrue(criacaoAnterior.isEqual(previsaoInserida.dataCriacao));
-        assertTrue(versaoAnterior.isBefore(previsaoInserida.versao));
+        assertTrue(criacaoAnterior.isEqual(previsaoInserida.getDataCriacao()));
+        assertTrue(versaoAnterior.isBefore(previsaoInserida.getVersao()));
     }
 
 }

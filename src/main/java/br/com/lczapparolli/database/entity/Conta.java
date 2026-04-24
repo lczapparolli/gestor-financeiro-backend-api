@@ -13,7 +13,17 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "CONTA")
@@ -22,20 +32,20 @@ public class Conta {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
-  public Long id;
+  private Long id;
   
   @Column(name = "descricao", nullable = false)
-  public String descricao;
+  private String descricao;
 
   @Column(name = "ativo", nullable = false)
-  public boolean ativo = true;
+  private boolean ativo;
   
   @CreationTimestamp
   @Column(name = "data_criacao", nullable = false, updatable = false)
-  public LocalDateTime dataCriacao;
+  private LocalDateTime dataCriacao;
   
   @Version
   @Column(name = "versao", nullable = false)
-  public LocalDateTime versao;
+  private LocalDateTime versao;
 
 }

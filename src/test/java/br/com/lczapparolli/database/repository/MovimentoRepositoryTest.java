@@ -40,17 +40,21 @@ public class MovimentoRepositoryTest {
     @Transactional
     void prepararDados() {
         if (idCategoria == null) {
-            var categoria = new Categoria();
-            categoria.descricao  = "Teste movimento";
+            var categoria = Categoria.builder()
+                .descricao("Teste movimento")
+                .ativo(true)
+                .build();
             categoriaRepository.persistAndFlush(categoria);
-            idCategoria = categoria.id;
+            idCategoria = categoria.getId();
         }
 
         if (idConta == null) {
-            var conta = new Conta();
-            conta.descricao = "Teste movimento";
+            var conta = Conta.builder()
+                .descricao("Teste movimento")
+                .ativo(true)
+                .build();
             contaRepository.persistAndFlush(conta);
-            idConta = conta.id;
+            idConta = conta.getId();
         }
     }
 
@@ -62,17 +66,19 @@ public class MovimentoRepositoryTest {
     void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = movimentoRepository.count();
-        var movimento = new Movimento();
-        movimento.categoria = categoriaRepository.findById(idCategoria);
-        movimento.conta = contaRepository.findById(idConta);
-        movimento.periodo = LocalDate.now();
-        movimento.data = LocalDate.now();
-        movimento.descricao = "Teste inclusão";
-        movimento.valor = BigDecimal.ONE;
+        var movimento = Movimento.builder()
+            .categoria(categoriaRepository.findById(idCategoria))
+            .conta(contaRepository.findById(idConta))
+            .periodo(LocalDate.now())
+            .data(LocalDate.now())
+            .descricao("Teste inclusão")
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
 
         // Verifica se os campos não estão preenchidos
-        assertNull(movimento.dataCriacao);
-        assertNull(movimento.versao);
+        assertNull(movimento.getDataCriacao());
+        assertNull(movimento.getVersao());
 
         // Salva o novo movimento
         movimentoRepository.persistAndFlush(movimento);
@@ -80,9 +86,8 @@ public class MovimentoRepositoryTest {
         // Verifica se o registros foi incluído
         var quantidade = movimentoRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
-        assertNotNull(movimento.dataCriacao);
-        assertNotNull(movimento.versao);
-        assertTrue(movimento.ativo);
+        assertNotNull(movimento.getDataCriacao());
+        assertNotNull(movimento.getVersao());
     }
 
     /**
@@ -92,25 +97,27 @@ public class MovimentoRepositoryTest {
     @Transactional
     void atualizacao_sucesso_test() {
         // Prepara os dados iniciais
-        var movimento = new Movimento();
-        movimento.categoria = categoriaRepository.findById(idCategoria);
-        movimento.conta = contaRepository.findById(idConta);
-        movimento.periodo = LocalDate.now();
-        movimento.data = LocalDate.now();
-        movimento.descricao = "Teste atualização";
-        movimento.valor = BigDecimal.ONE;
+        var movimento = Movimento.builder()
+            .categoria(categoriaRepository.findById(idCategoria))
+            .conta(contaRepository.findById(idConta))
+            .periodo(LocalDate.now())
+            .data(LocalDate.now())
+            .descricao("Teste atualização")
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         movimentoRepository.persistAndFlush(movimento);
-        var criacaoAnterior = movimento.dataCriacao;
-        var versaoAnterior = movimento.versao;
+        var criacaoAnterior = movimento.getDataCriacao();
+        var versaoAnterior = movimento.getVersao();
 
         // Procura o movimento inserido e atualiza as informações
-        Movimento movimentoInserido = movimentoRepository.findById(movimento.id);
-        movimentoInserido.valor = BigDecimal.TEN;
+        Movimento movimentoInserido = movimentoRepository.findById(movimento.getId());
+        movimentoInserido.setValor(BigDecimal.TEN);
         movimentoRepository.persistAndFlush(movimentoInserido);
 
         // Verifica se os campos foram atualizados
-        assertTrue(criacaoAnterior.isEqual(movimentoInserido.dataCriacao));
-        assertTrue(versaoAnterior.isBefore(movimentoInserido.versao));
+        assertTrue(criacaoAnterior.isEqual(movimentoInserido.getDataCriacao()));
+        assertTrue(versaoAnterior.isBefore(movimentoInserido.getVersao()));
     }
 
 }

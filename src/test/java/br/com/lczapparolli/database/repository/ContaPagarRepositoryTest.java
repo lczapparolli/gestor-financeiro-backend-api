@@ -35,10 +35,12 @@ public class ContaPagarRepositoryTest {
     @Transactional
     void prepararDados() {
         if (idCategoria == null) {
-            var categoria = new Categoria();
-            categoria.descricao = "Teste Conta a Pagar";
+            var categoria = Categoria.builder()
+                .descricao("Teste Conta a Pagar")
+                .ativo(true)
+                .build();
             categoriaRepository.persistAndFlush(categoria);
-            idCategoria = categoria.id;
+            idCategoria = categoria.getId();
         }
     }
 
@@ -50,15 +52,17 @@ public class ContaPagarRepositoryTest {
     void incluir_sucesso_test() {
         // Prepara os dados iniciais
         var quantidadeInicial = contaPagarRepository.count();
-        var contaPagar = new ContaPagar();
-        contaPagar.periodo = LocalDate.now();
-        contaPagar.categoria = categoriaRepository.findById(idCategoria);
-        contaPagar.vencimento = LocalDate.now();
-        contaPagar.valor = BigDecimal.ONE;
+        var contaPagar = ContaPagar.builder()
+            .periodo(LocalDate.now())
+            .categoria(categoriaRepository.findById(idCategoria))
+            .vencimento(LocalDate.now())
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         
         // Verifica se os campos não estão preenchidos
-        assertNull(contaPagar.dataCriacao);
-        assertNull(contaPagar.versao);
+        assertNull(contaPagar.getDataCriacao());
+        assertNull(contaPagar.getVersao());
         
         // Salva a nova conta a pagar
         contaPagarRepository.persistAndFlush(contaPagar);
@@ -66,9 +70,8 @@ public class ContaPagarRepositoryTest {
         //Verifica se o registro foi incluído
         var quantidade = contaPagarRepository.count();
         assertEquals(quantidadeInicial + 1, quantidade);
-        assertNotNull(contaPagar.dataCriacao);
-        assertNotNull(contaPagar.versao);
-        assertTrue(contaPagar.ativo);
+        assertNotNull(contaPagar.getDataCriacao());
+        assertNotNull(contaPagar.getVersao());
     }
 
     /**
@@ -78,23 +81,25 @@ public class ContaPagarRepositoryTest {
     @Transactional
     void atualizar_sucesso_test() {
         // Prepara os dados iniciais
-        var contaPagar = new ContaPagar();
-        contaPagar.periodo = LocalDate.now();
-        contaPagar.categoria = categoriaRepository.findById(idCategoria);
-        contaPagar.vencimento = LocalDate.now();
-        contaPagar.valor = BigDecimal.ONE;
+        var contaPagar = ContaPagar.builder()
+            .periodo(LocalDate.now())
+            .categoria(categoriaRepository.findById(idCategoria))
+            .vencimento(LocalDate.now())
+            .valor(BigDecimal.ONE)
+            .ativo(true)
+            .build();
         contaPagarRepository.persistAndFlush(contaPagar);
-        var criacaoAnterior = contaPagar.dataCriacao;
-        var versaoAnterior = contaPagar.versao;
+        var criacaoAnterior = contaPagar.getDataCriacao();
+        var versaoAnterior = contaPagar.getVersao();
 
         // Procura a conta a pagar inserida e atualiza as informações
-        ContaPagar contaPagarInserida = contaPagarRepository.findById(contaPagar.id);
-        contaPagarInserida.valor = BigDecimal.TEN;
+        ContaPagar contaPagarInserida = contaPagarRepository.findById(contaPagar.getId());
+        contaPagarInserida.setValor(BigDecimal.TEN);
         contaPagarRepository.persistAndFlush(contaPagarInserida);
 
         // Verifica se os campos foram atualizados
-        assertTrue(criacaoAnterior.isEqual(contaPagarInserida.dataCriacao));
-        assertTrue(versaoAnterior.isBefore(contaPagarInserida.versao));
+        assertTrue(criacaoAnterior.isEqual(contaPagarInserida.getDataCriacao()));
+        assertTrue(versaoAnterior.isBefore(contaPagarInserida.getVersao()));
     }
 
 }
