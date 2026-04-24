@@ -50,4 +50,42 @@ public class ContaService {
         return contaDTO;
     }
 
+    @Transactional
+    public ContaDTO atualizarConta(ContaDTO contaDTO) throws ValidacaoException {
+        if (Objects.isNull(contaDTO)) {
+            throw new ValidacaoException("Os dados estão vazios");
+        }
+
+        if (Objects.isNull(contaDTO.getDescricao()) || contaDTO.getDescricao().isBlank()) {
+            throw new ValidacaoException("A descrição precisa ser preenchida");
+        }
+
+        if (Objects.isNull(contaDTO.getId()) || contaDTO.getId().compareTo(0L) <= 0) {
+            throw new ValidacaoException("O id precisa ser preenchido");
+        }
+
+        var pesquisa = contaRepository.findByDescricao(contaDTO.getDescricao());
+        if (pesquisa.isPresent() && pesquisa.get().getId() != contaDTO.getId()) {
+            if (!pesquisa.get().isAtivo()) {
+                throw new ValidacaoException("Já existe uma conta desativada com a mesma descrição");
+            }
+            
+            throw new ValidacaoException("Já existe uma conta com a mesma descrição");
+        }
+
+        var pesquisaId = contaRepository.findByIdOptional(contaDTO.getId());
+        if (pesquisaId.isEmpty()) {
+            throw new ValidacaoException("Conta não encontrada");
+        }
+        if (!pesquisaId.get().isAtivo()) {
+            throw new ValidacaoException("A conta está desativada");
+        }
+
+        pesquisaId.get().setDescricao(contaDTO.getDescricao());
+        
+        contaRepository.persist(pesquisaId.get());
+
+        return contaDTO;
+    }
+
 }

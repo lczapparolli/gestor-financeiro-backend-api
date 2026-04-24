@@ -3,10 +3,12 @@ package br.com.lczapparolli.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
@@ -47,6 +49,7 @@ public class ContaServiceTest {
         ArgumentCaptor<@NonNull Conta> contaCaptor = ArgumentCaptor.forClass(Conta.class);
         Mockito.doAnswer(invocation -> {
             Conta conta = invocation.getArgument(0, Conta.class);
+            assertNull(conta.getId());
             conta.setId(1L);
             return null;
         }).when(contaRepository).persist(any(Conta.class));
@@ -126,33 +129,153 @@ public class ContaServiceTest {
     }
 
     @Test
-    void atualizarConta_sucesso_test() {
-        fail("Não implementado");
+    void atualizarConta_sucesso_test() throws ValidacaoException {
+        // Preparando ferramentas de mock
+        ArgumentCaptor<@NonNull Conta> contaCaptor = ArgumentCaptor.forClass(Conta.class);
+        Mockito.doReturn(Optional.of(Conta.builder().id(2L).descricao("Objeto salvo").ativo(true).build()))
+            .when(contaRepository)
+            .findByIdOptional(2L);
+        Mockito.doNothing().when(contaRepository).persist(any(Conta.class));
+
+        // Executando método
+        var contaDTO = ContaDTO.builder()
+            .id(2L)
+            .descricao("Teste service")
+            .build();
+        var resultado = contaService.atualizarConta(contaDTO);
+        
+        // Valida o resultado
+        assertNotNull(resultado);
+        assertNotNull(resultado.getId());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, times(1)).persist(contaCaptor.capture());
+        assertNotNull(contaCaptor.getValue());
+        assertTrue(contaCaptor.getValue().isAtivo());
+        assertEquals(contaDTO.getId(), contaCaptor.getValue().getId());
+        assertEquals(contaDTO.getDescricao(), contaCaptor.getValue().getDescricao());
+    }
+
+    @Test
+    void atualizarConta_contaDesativada_deveGerarErro_test() throws ValidacaoException {
+        // Preparando ferramentas de mock
+        ArgumentCaptor<@NonNull Conta> contaCaptor = ArgumentCaptor.forClass(Conta.class);
+        Mockito.doReturn(Optional.of(
+                Conta.builder()
+                    .id(2L)
+                    .descricao("Objeto salvo")
+                    .ativo(false)
+                    .build()))
+            .when(contaRepository)
+            .findByIdOptional(2L);
+        Mockito.doNothing().when(contaRepository).persist(any(Conta.class));
+
+        // Executando método
+        var contaDTO = ContaDTO.builder()
+            .id(2L)
+            .descricao("Teste service")
+            .build();
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+        assertEquals("A conta está desativada", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
     }
 
     @Test
     void atualizarConta_parametroNulo_deveGerarErro_test() {
-        fail("Não implementado");
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(null));
+        assertEquals("Os dados estão vazios", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
     }
 
-    @Test
-    void atualizarConta_descricaoVazia_deveGerarErro_test() {
-        fail("Não implementado");
+    @ParameterizedTest
+    @ValueSource(strings = {"", "   "})
+    @NullSource
+    void atualizarConta_descricaoVazia_deveGerarErro_test(String descricao) {
+        var contaDTO = ContaDTO.builder()
+            .id(2L)
+            .descricao(descricao)
+            .build();
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+        assertEquals("A descrição precisa ser preenchida", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
     }
 
     @Test
     void atualizarConta_descricaoDuplicada_deveGerarErro_test() {
-        fail("Não implementado");
+        String descricao = "Teste duplicado";
+        Conta contaMock = Conta.builder()
+            .descricao(descricao)
+            .id(1L)
+            .ativo(true)
+            .build();
+        Mockito.doReturn(Optional.of(contaMock)).when(contaRepository).findByDescricao(descricao);
+
+        var contaDTO = ContaDTO.builder()
+            .id(2L)
+            .descricao(descricao)
+            .build();
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+        assertEquals("Já existe uma conta com a mesma descrição", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
     }
 
     @Test
     void atualizarConta_descricaoDuplicadaDesativada_deveGerarErro_test() {
-        fail("Não implementado");
+        String descricao = "Teste duplicado";
+        Conta contaMock = Conta.builder()
+            .descricao(descricao)
+            .id(1L)
+            .ativo(false)
+            .build();
+        Mockito.doReturn(Optional.of(contaMock)).when(contaRepository).findByDescricao(descricao);
+
+        var contaDTO = ContaDTO.builder()
+            .id(2L)
+            .descricao(descricao)
+            .build();
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+        assertEquals("Já existe uma conta desativada com a mesma descrição", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, -1L, -2L})
+    @NullSource
+    void atualizarConta_idVazio_deveGerarErro_test(Long id) {
+        var contaDTO = ContaDTO.builder()
+            .id(id)
+            .descricao("Teste service")
+            .build();
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+        assertEquals("O id precisa ser preenchido", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
     }
 
     @Test
-    void atualizarConta_contaInexistente_deveGerarErro_test() {
-        fail("Não implementado");
+    void atualizarConta_idNaoEncontrado_deveGerarErro_test() {
+        Mockito.doReturn(Optional.empty()).when(contaRepository).findByIdOptional(anyLong());
+
+        var contaDTO = ContaDTO.builder()
+            .id(2L)
+            .descricao("Teste service")
+            .build();
+        var excecao = assertThrows(ValidacaoException.class, () -> contaService.atualizarConta(contaDTO));
+        assertEquals("Conta não encontrada", excecao.getMessage());
+
+        // Verificando a chamada ao repositório
+        Mockito.verify(contaRepository, never()).persist(any(Conta.class));
     }
 
     @Test
