@@ -27,15 +27,11 @@ public class ContaService {
       listaContas = contaRepository.listarPorSituacao(ativas);
     }
 
-    return listaContas
-        .map(conta -> ContaDTO.builder().id(conta.getId()).descricao(conta.getDescricao()).ativo(conta.isAtivo())
-            .build());
+    return listaContas.map(ContaDTO::from);
   }
 
   public Optional<ContaDTO> obterConta(Long idConta) {
-    return contaRepository.findByIdOptional(idConta)
-        .map(conta -> ContaDTO.builder().id(conta.getId()).descricao(conta.getDescricao()).ativo(conta.isAtivo())
-            .build());
+    return contaRepository.findByIdOptional(idConta).map(ContaDTO::from);
   }
 
   @Transactional
@@ -64,10 +60,7 @@ public class ContaService {
 
     contaRepository.persist(conta);
 
-    contaDTO.setId(conta.getId());
-    contaDTO.setAtivo(true);
-
-    return contaDTO;
+    return ContaDTO.from(conta);
   }
 
   @Transactional
@@ -106,11 +99,7 @@ public class ContaService {
 
     contaRepository.persist(conta);
 
-    return ContaDTO.builder()
-        .id(conta.getId())
-        .descricao(conta.getDescricao())
-        .ativo(conta.isAtivo())
-        .build();
+    return ContaDTO.from(conta);
   }
 
   @Transactional
@@ -145,7 +134,6 @@ public class ContaService {
     conta.setAtivo(true);
 
     contaRepository.persist(conta);
-
   }
 
 }

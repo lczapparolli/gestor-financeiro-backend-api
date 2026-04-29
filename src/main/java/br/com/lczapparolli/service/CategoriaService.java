@@ -27,17 +27,11 @@ public class CategoriaService {
       listaCategorias = categoriaRepository.listarPorSituacao(ativas);
     }
 
-    return listaCategorias
-        .map(categoria -> CategoriaDTO.builder().id(categoria.getId()).descricao(categoria.getDescricao())
-            .ativo(categoria.isAtivo())
-            .build());
+    return listaCategorias.map(CategoriaDTO::from);
   }
 
   public Optional<CategoriaDTO> obterCategoria(Long idCategoria) {
-    return categoriaRepository.findByIdOptional(idCategoria)
-        .map(categoria -> CategoriaDTO.builder().id(categoria.getId()).descricao(categoria.getDescricao())
-            .ativo(categoria.isAtivo())
-            .build());
+    return categoriaRepository.findByIdOptional(idCategoria).map(CategoriaDTO::from);
   }
 
   @Transactional
@@ -66,10 +60,7 @@ public class CategoriaService {
 
     categoriaRepository.persist(categoria);
 
-    categoriaDTO.setId(categoria.getId());
-    categoriaDTO.setAtivo(true);
-
-    return categoriaDTO;
+    return CategoriaDTO.from(categoria);
   }
 
   @Transactional
@@ -108,11 +99,7 @@ public class CategoriaService {
 
     categoriaRepository.persist(categoria);
 
-    return CategoriaDTO.builder()
-        .id(categoria.getId())
-        .descricao(categoria.getDescricao())
-        .ativo(categoria.isAtivo())
-        .build();
+    return CategoriaDTO.from(categoria);
   }
 
   @Transactional
