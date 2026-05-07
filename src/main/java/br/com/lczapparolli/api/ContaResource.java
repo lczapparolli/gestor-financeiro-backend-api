@@ -42,12 +42,14 @@ public class ContaResource {
     return contaService.atualizarConta(idConta, contaDTO);
   }
 
+  // TODO: Remodelar para verbo DELETE
   @PUT
   @Path("/{idConta}/desativar")
   public void desativarConta(@PathParam("idConta") Long idConta) throws GerenciadorException {
     contaService.desativarConta(idConta);
   }
 
+  // TODO: Realizar a reativação ao tentar inserir uma conta com a mesma descrição
   @PUT
   @Path("/{idConta}/reativar")
   public void reativarConta(@PathParam("idConta") Long idConta) throws GerenciadorException {

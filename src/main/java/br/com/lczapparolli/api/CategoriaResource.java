@@ -43,12 +43,15 @@ public class CategoriaResource {
     return categoriaService.atualizarCategoria(idCategoria, categoriaDTO);
   }
 
+  // TODO: Alterar o verbo para DELETE
   @PUT
   @Path("/{idCategoria}/desativar")
   public void desativarCategoria(@PathParam("idCategoria") Long idCategoria) throws GerenciadorException {
     categoriaService.desativarCategoria(idCategoria);
   }
 
+  // TODO: Realizar a reativação da categoria ao tentar inserir uma descrição já
+  // existente
   @PUT
   @Path("/{idCategoria}/reativar")
   public void reativarCategoria(@PathParam("idCategoria") Long idCategoria) throws GerenciadorException {
