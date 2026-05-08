@@ -7,6 +7,7 @@ import br.com.lczapparolli.dto.ContaDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.service.ContaService;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -42,18 +43,10 @@ public class ContaResource {
     return contaService.atualizarConta(idConta, contaDTO);
   }
 
-  // TODO: Remodelar para verbo DELETE
-  @PUT
-  @Path("/{idConta}/desativar")
+  @DELETE
+  @Path("/{idConta}")
   public void desativarConta(@PathParam("idConta") Long idConta) throws GerenciadorException {
     contaService.desativarConta(idConta);
-  }
-
-  // TODO: Realizar a reativação ao tentar inserir uma conta com a mesma descrição
-  @PUT
-  @Path("/{idConta}/reativar")
-  public void reativarConta(@PathParam("idConta") Long idConta) throws GerenciadorException {
-    contaService.reativarConta(idConta);
   }
 
 }

@@ -46,11 +46,14 @@ public class ContaService {
 
     var pesquisa = contaRepository.findByDescricao(contaDTO.getDescricao());
     if (pesquisa.isPresent()) {
-      if (!pesquisa.get().isAtivo()) {
-        throw new ValidacaoException("Já existe uma conta desativada com a mesma descrição");
+      if (pesquisa.get().isAtivo()) {
+        throw new ValidacaoException("Já existe uma conta com a mesma descrição");
       }
 
-      throw new ValidacaoException("Já existe uma conta com a mesma descrição");
+      var conta = pesquisa.get();
+      conta.setAtivo(true);
+      contaRepository.persist(conta);
+      return ContaDTO.from(conta);
     }
 
     var conta = Conta.builder()
@@ -90,6 +93,7 @@ public class ContaService {
     if (pesquisaId.isEmpty()) {
       throw new ValidacaoException("Conta não encontrada");
     }
+
     if (!pesquisaId.get().isAtivo()) {
       throw new ValidacaoException("A conta está desativada");
     }
@@ -115,23 +119,6 @@ public class ContaService {
 
     Conta conta = resultadoConsulta.get();
     conta.setAtivo(false);
-
-    contaRepository.persist(conta);
-  }
-
-  @Transactional
-  public void reativarConta(Long id) throws GerenciadorException {
-    var resultadoConsulta = contaRepository.findByIdOptional(id);
-    if (resultadoConsulta.isEmpty()) {
-      throw new ValidacaoException("Conta não encontrada");
-    }
-
-    if (resultadoConsulta.get().isAtivo()) {
-      throw new ValidacaoException("A conta já está ativa");
-    }
-
-    Conta conta = resultadoConsulta.get();
-    conta.setAtivo(true);
 
     contaRepository.persist(conta);
   }
