@@ -16,13 +16,11 @@ public class CategoriaDTO {
 
   private Long id;
   private String descricao;
-  private boolean ativo;
 
   public static CategoriaDTO from(Categoria categoria) {
     return CategoriaDTO.builder()
         .id(categoria.getId())
         .descricao(categoria.getDescricao())
-        .ativo(categoria.isAtivo())
         .build();
   }
 

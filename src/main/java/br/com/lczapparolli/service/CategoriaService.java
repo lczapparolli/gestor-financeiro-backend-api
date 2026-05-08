@@ -46,11 +46,14 @@ public class CategoriaService {
 
     var pesquisa = categoriaRepository.findByDescricao(categoriaDTO.getDescricao());
     if (pesquisa.isPresent()) {
-      if (!pesquisa.get().isAtivo()) {
-        throw new ValidacaoException("Já existe uma categoria desativada com a mesma descrição");
+      if (pesquisa.get().isAtivo()) {
+        throw new ValidacaoException("Já existe uma categoria com a mesma descrição");
       }
 
-      throw new ValidacaoException("Já existe uma categoria com a mesma descrição");
+      var categoria = pesquisa.get();
+      categoria.setAtivo(true);
+      categoriaRepository.persist(categoria);
+      return CategoriaDTO.from(categoria);
     }
 
     var categoria = Categoria.builder()
@@ -115,23 +118,6 @@ public class CategoriaService {
 
     Categoria categoria = resultadoConsulta.get();
     categoria.setAtivo(false);
-
-    categoriaRepository.persist(categoria);
-  }
-
-  @Transactional
-  public void reativarCategoria(Long id) throws GerenciadorException {
-    var resultadoConsulta = categoriaRepository.findByIdOptional(id);
-    if (resultadoConsulta.isEmpty()) {
-      throw new ValidacaoException("Categoria não encontrada");
-    }
-
-    if (resultadoConsulta.get().isAtivo()) {
-      throw new ValidacaoException("A categoria já está ativa");
-    }
-
-    Categoria categoria = resultadoConsulta.get();
-    categoria.setAtivo(true);
 
     categoriaRepository.persist(categoria);
   }

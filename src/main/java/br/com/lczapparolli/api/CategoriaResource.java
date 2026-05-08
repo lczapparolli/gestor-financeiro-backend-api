@@ -7,6 +7,7 @@ import br.com.lczapparolli.dto.CategoriaDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.service.CategoriaService;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -43,19 +44,10 @@ public class CategoriaResource {
     return categoriaService.atualizarCategoria(idCategoria, categoriaDTO);
   }
 
-  // TODO: Alterar o verbo para DELETE
-  @PUT
-  @Path("/{idCategoria}/desativar")
+  @DELETE
+  @Path("/{idCategoria}")
   public void desativarCategoria(@PathParam("idCategoria") Long idCategoria) throws GerenciadorException {
     categoriaService.desativarCategoria(idCategoria);
-  }
-
-  // TODO: Realizar a reativação da categoria ao tentar inserir uma descrição já
-  // existente
-  @PUT
-  @Path("/{idCategoria}/reativar")
-  public void reativarCategoria(@PathParam("idCategoria") Long idCategoria) throws GerenciadorException {
-    categoriaService.reativarCategoria(idCategoria);
   }
 
 }
