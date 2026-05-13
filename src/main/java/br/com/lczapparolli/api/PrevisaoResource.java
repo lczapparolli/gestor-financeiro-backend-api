@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import br.com.lczapparolli.dto.PrevisaoDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.service.PrevisaoService;
+import br.com.lczapparolli.util.PeriodoUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -23,7 +24,7 @@ public class PrevisaoResource {
 
   @GET
   public Stream<PrevisaoDTO> listar(@QueryParam("ano") String ano, @QueryParam("mes") String mes) {
-    LocalDate periodo = LocalDate.of(Integer.parseInt(ano), Integer.parseInt(mes), 1);
+    LocalDate periodo = PeriodoUtil.fromAnoMes(ano, mes);
     return previsaoService.listarPrevisoes(periodo);
   }
 

@@ -12,6 +12,7 @@ import br.com.lczapparolli.database.repository.PrevisaoRepository;
 import br.com.lczapparolli.dto.CategoriaDTO;
 import br.com.lczapparolli.dto.PrevisaoDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
+import br.com.lczapparolli.util.PeriodoUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -25,7 +26,7 @@ public class PrevisaoService {
   CategoriaRepository categoriaRepository;
 
   public Stream<PrevisaoDTO> listarPrevisoes(LocalDate periodo) {
-    LocalDate periodoNormalizado = normalizarPeriodo(periodo);
+    LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
     Stream<Previsao> previsoes = previsaoRepository.listarPorPeriodo(periodoNormalizado);
     Stream<Categoria> categorias = categoriaRepository.listarSemPrevisao(periodoNormalizado);
 
@@ -61,7 +62,7 @@ public class PrevisaoService {
       throw new GerenciadorException("Categoria não encontrada");
     }
 
-    LocalDate periodoNormalizado = normalizarPeriodo(previsaoDTO.getPeriodo());
+    LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(previsaoDTO.getPeriodo());
     Optional<Previsao> previsaoExistente = previsaoRepository.findByPeriodoCategoria(periodoNormalizado,
         categoria.get().getId());
     if (previsaoExistente.isPresent()) {
@@ -125,11 +126,6 @@ public class PrevisaoService {
 
     previsao.get().setAtivo(false);
     previsaoRepository.persist(previsao.get());
-  }
-
-  // TODO: Mover para classe 'utils'
-  private LocalDate normalizarPeriodo(LocalDate periodo) {
-    return LocalDate.of(periodo.getYear(), periodo.getMonth(), 1);
   }
 
 }
