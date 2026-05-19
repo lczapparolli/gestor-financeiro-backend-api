@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import br.com.lczapparolli.database.entity.Conta;
+import br.com.lczapparolli.database.repository.CartaoCreditoRepository;
 import br.com.lczapparolli.database.repository.ContaRepository;
 import br.com.lczapparolli.dto.ContaDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
@@ -19,12 +20,15 @@ public class ContaService {
   @Inject
   ContaRepository contaRepository;
 
-  public Stream<ContaDTO> listarContas(Boolean ativas) {
+  @Inject
+  CartaoCreditoRepository cartaoCreditoRepository;
+
+  public Stream<ContaDTO> listarContas(boolean incluirCartoes) {
     Stream<Conta> listaContas;
-    if (Objects.isNull(ativas)) {
-      listaContas = contaRepository.streamAll();
+    if (incluirCartoes) {
+      listaContas = contaRepository.listarAtivas();
     } else {
-      listaContas = contaRepository.listarPorSituacao(ativas);
+      listaContas = contaRepository.listarAtivasSemCartoes();
     }
 
     return listaContas.map(ContaDTO::from);
@@ -48,6 +52,11 @@ public class ContaService {
     if (pesquisa.isPresent()) {
       if (pesquisa.get().isAtivo()) {
         throw new ValidacaoException("Já existe uma conta com a mesma descrição");
+      }
+
+      var cartaoCredito = cartaoCreditoRepository.findByIdOptional(pesquisa.get().getId());
+      if (cartaoCredito.isPresent()) {
+        throw new ValidacaoException("Já existe um cartão com a mesma descrição");
       }
 
       var conta = pesquisa.get();
@@ -92,6 +101,11 @@ public class ContaService {
     var pesquisaId = contaRepository.findByIdOptional(idConta);
     if (pesquisaId.isEmpty()) {
       throw new ValidacaoException("Conta não encontrada");
+    }
+
+    var cartaoCredito = cartaoCreditoRepository.findByIdOptional(idConta);
+    if (cartaoCredito.isPresent()) {
+      throw new ValidacaoException("Não é possível alterar porque esse é um cartão de crédito");
     }
 
     if (!pesquisaId.get().isAtivo()) {

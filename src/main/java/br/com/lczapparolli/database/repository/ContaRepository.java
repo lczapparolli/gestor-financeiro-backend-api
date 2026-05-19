@@ -14,8 +14,12 @@ public class ContaRepository implements PanacheRepository<Conta> {
     return find("lower(descricao) = lower(?1)", descricao).firstResultOptional();
   }
 
-  public Stream<Conta> listarPorSituacao(boolean ativas) {
-    return find("ativo = ?1", ativas).stream();
+  public Stream<Conta> listarAtivas() {
+    return stream("WHERE ativo = true");
+  }
+
+  public Stream<Conta> listarAtivasSemCartoes() {
+    return stream("SELECT c FROM Conta c LEFT JOIN CartaoCredito cc ON cc.id = c.id WHERE cc.id IS NULL");
   }
 
 }

@@ -22,8 +22,8 @@ public class ContaResource {
   ContaService contaService;
 
   @GET
-  public Stream<ContaDTO> listarContas(@QueryParam("ativas") Boolean ativas) {
-    return contaService.listarContas(ativas);
+  public Stream<ContaDTO> listarContas(@QueryParam("incluirCartoes") boolean incluirCartoes) {
+    return contaService.listarContas(incluirCartoes);
   }
 
   @GET
