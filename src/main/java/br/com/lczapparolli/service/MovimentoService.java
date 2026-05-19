@@ -80,6 +80,8 @@ public class MovimentoService {
     Movimento movimento = new Movimento();
     movimento.setDescricao(movimentoDTO.getDescricao());
     movimento.setData(movimentoDTO.getData());
+    // TODO: Tratar o período com base na data. Caso a conta seja um cartão,
+    // considera também a data de fechamento da fatura
     movimento.setPeriodo(PeriodoUtil.normalizarPeriodo(movimentoDTO.getPeriodo()));
     movimento.setValor(movimentoDTO.getValor());
     movimento.setConta(conta.get());

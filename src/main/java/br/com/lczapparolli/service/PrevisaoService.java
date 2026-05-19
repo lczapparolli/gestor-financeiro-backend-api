@@ -78,6 +78,8 @@ public class PrevisaoService {
 
     Previsao previsaoNova = new Previsao();
     previsaoNova.setCategoria(categoria.get());
+    // TODO: Criar uma lógica para os casos em que a previsão é cumulativa com os
+    // períodos anteriores (Ex: mesadas)
     previsaoNova.setValor(previsaoDTO.getValor());
     previsaoNova.setPeriodo(periodoNormalizado);
     previsaoNova.setAtivo(true);
