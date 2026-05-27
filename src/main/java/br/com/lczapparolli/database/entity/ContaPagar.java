@@ -38,6 +38,9 @@ public class ContaPagar {
   @Column(name = "id", nullable = false)
   private Long id;
 
+  @Column(name = "descricao", nullable = false)
+  private String descricao;
+
   @Column(name = "periodo", nullable = false)
   private LocalDate periodo;
 
@@ -45,7 +48,7 @@ public class ContaPagar {
   @JoinColumn(name = "id_categoria", nullable = false)
   private Categoria categoria;
 
-  @Column(name = "vencimento", nullable = false)
+  @Column(name = "vencimento", nullable = true)
   private LocalDate vencimento;
 
   @Column(name = "valor", nullable = false, precision = 19, scale = 2)

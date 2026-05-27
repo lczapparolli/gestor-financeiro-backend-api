@@ -30,6 +30,7 @@ CREATE TABLE `PREVISAO` (
 
 CREATE TABLE `CONTA_PAGAR` (
   `id` bigint NOT NULL AUTO_INCREMENT,
+  `descricao` varchar(255) NOT NULL,
   `valor` decimal(19,2) DEFAULT NULL,
   `vencimento` date DEFAULT NULL,
   `periodo` date NOT NULL,

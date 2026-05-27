@@ -25,12 +25,10 @@ public class Fatura extends ContaPagar {
   private CartaoCredito cartaoCredito;
 
   @Builder(builderMethodName = "faturaBuilder")
-  public Fatura(Long id, LocalDate periodo, Categoria categoria, LocalDate vencimento, BigDecimal valor, boolean ativo,
-      LocalDateTime dataCriacao, LocalDateTime versao, CartaoCredito cartaoCredito) {
-    super(id, periodo, categoria, vencimento, valor, ativo, dataCriacao, versao);
+  public Fatura(Long id, String descricao, LocalDate periodo, Categoria categoria, LocalDate vencimento,
+      BigDecimal valor, boolean ativo, LocalDateTime dataCriacao, LocalDateTime versao, CartaoCredito cartaoCredito) {
+    super(id, descricao, periodo, categoria, vencimento, valor, ativo, dataCriacao, versao);
     this.cartaoCredito = cartaoCredito;
   }
-
-  
 
 }
