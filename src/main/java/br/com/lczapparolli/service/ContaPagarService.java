@@ -2,6 +2,11 @@ package br.com.lczapparolli.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -170,7 +175,46 @@ public class ContaPagarService {
   }
 
   @Transactional
-  public Stream<ContaPagarDTO> clonarContasPagar(LocalDate periodoOrigem, LocalDate periodoDestino) {
-    throw new UnsupportedOperationException();
+  public Stream<ContaPagarDTO> clonarContasPagar(LocalDate periodoOrigem, LocalDate periodoDestino)
+      throws GerenciadorException {
+    LocalDate periodoOrigemNormalizado = PeriodoUtil.normalizarPeriodo(periodoOrigem);
+    LocalDate periodoDestinoNormalizado = PeriodoUtil.normalizarPeriodo(periodoDestino);
+    long delta = ChronoUnit.MONTHS.between(periodoOrigemNormalizado, periodoDestinoNormalizado);
+
+    if (periodoOrigemNormalizado.isEqual(periodoDestinoNormalizado)) {
+      throw new GerenciadorException("Os períodos de origem e destino não podem ser os mesmos");
+    }
+
+    Stream<ContaPagar> contasPagarOrigem = contaPagarRepository.listarAtivasPorPeriodo(periodoOrigemNormalizado);
+    Iterator<ContaPagar> iterator = contasPagarOrigem.iterator();
+    List<ContaPagarDTO> inseridas = new ArrayList<>();
+    while (iterator.hasNext()) {
+      ContaPagar contaPagar = iterator.next();
+      Optional<ContaPagarDTO> inserido = clonar(contaPagar, periodoDestinoNormalizado, delta);
+      if (inserido.isPresent()) {
+        inseridas.add(inserido.get());
+      }
+    }
+
+    return inseridas.stream();
+  }
+
+  private Optional<ContaPagarDTO> clonar(ContaPagar contaPagar, LocalDate periodoDestino, long delta) {
+    try {
+      ContaPagarDTO novo = ContaPagarDTO.from(contaPagar);
+      novo.setPeriodo(periodoDestino);
+      novo.setId(null);
+      if (!Objects.isNull(contaPagar.getVencimento())) {
+        LocalDate novoVencimento = Stream
+            .of(contaPagar.getVencimento().plusMonths(delta), periodoDestino.plusMonths(1).minusDays(1))
+            .min(Comparator.naturalOrder())
+            .get();
+        novo.setVencimento(novoVencimento);
+      }
+
+      return Optional.of(inserirContaPagar(novo));
+    } catch (GerenciadorException exception) {
+      return Optional.empty();
+    }
   }
 }

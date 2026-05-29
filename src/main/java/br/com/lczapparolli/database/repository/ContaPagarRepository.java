@@ -13,7 +13,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class ContaPagarRepository implements PanacheRepository<ContaPagar> {
 
   public Stream<ContaPagar> listarAtivasPorPeriodo(LocalDate periodo) {
-    return stream("periodo = ?1 AND ativo = true", periodo);
+    Parameters params = Parameters.with("periodo", periodo)
+        .and("ativo", true);
+
+    return stream("periodo = :periodo AND ativo = :ativo", params);
   }
 
   public Optional<ContaPagar> pesquisarPorPeriodoDescricao(LocalDate periodo, String descricao) {

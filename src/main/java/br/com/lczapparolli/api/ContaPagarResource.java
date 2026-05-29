@@ -1,6 +1,7 @@
 package br.com.lczapparolli.api;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import br.com.lczapparolli.dto.ContaPagarDTO;
@@ -45,5 +46,16 @@ public class ContaPagarResource {
   @Path("/{idContaPagar}")
   public void desativarContaPagar(@PathParam("idContaPagar") Long idContaPagar) throws GerenciadorException {
     contaPagarService.desativarContaPagar(idContaPagar);
+  }
+
+  @POST
+  @Path("/clonar")
+  public Stream<ContaPagarDTO> clonarContasPagar(Map<String, Object> parametros) throws GerenciadorException {
+    String origem = parametros.get("origem").toString();
+    LocalDate periodoOrigem = LocalDate.parse(origem);
+    String destino = parametros.get("destino").toString();
+    LocalDate periodoDestino = LocalDate.parse(destino);
+
+    return contaPagarService.clonarContasPagar(periodoOrigem, periodoDestino);
   }
 }
