@@ -1,6 +1,7 @@
 package br.com.lczapparolli.api;
 
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import br.com.lczapparolli.dto.PrevisaoDTO;
@@ -50,6 +51,17 @@ public class PrevisaoResource {
   @Path("{idPrevisao}")
   public void desativarPrevisao(@PathParam("idPrevisao") Long idPrevisao) throws GerenciadorException {
     previsaoService.desativarPrevisao(idPrevisao);
+  }
+
+  @POST
+  @Path("/clonar")
+  public Stream<PrevisaoDTO> clonarPrevisoes(Map<String, Object> parametros) throws GerenciadorException {
+    String origem = parametros.get("origem").toString();
+    LocalDate periodoOrigem = LocalDate.parse(origem);
+    String destino = parametros.get("destino").toString();
+    LocalDate periodoDestino = LocalDate.parse(destino);
+
+    return previsaoService.clonarPrevisoes(periodoOrigem, periodoDestino);
   }
 
 }

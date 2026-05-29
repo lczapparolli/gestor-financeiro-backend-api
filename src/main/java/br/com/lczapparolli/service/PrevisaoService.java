@@ -1,6 +1,10 @@
 package br.com.lczapparolli.service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -115,6 +119,7 @@ public class PrevisaoService {
     return PrevisaoDTO.from(previsao.get());
   }
 
+  @Transactional
   public void desativarPrevisao(Long idPrevisao) throws GerenciadorException {
     if (Objects.isNull(idPrevisao) || idPrevisao.compareTo(0L) <= 0) {
       throw new GerenciadorException("A identificação da previsão precisa ser informada");
@@ -128,6 +133,43 @@ public class PrevisaoService {
 
     previsao.get().setAtivo(false);
     previsaoRepository.persist(previsao.get());
+  }
+
+  @Transactional
+  public Stream<PrevisaoDTO> clonarPrevisoes(LocalDate periodoOrigem, LocalDate periodoDestino)
+      throws GerenciadorException {
+    LocalDate periodoOrigemNormalizado = PeriodoUtil.normalizarPeriodo(periodoOrigem);
+    LocalDate periodoDestinoNormalizado = PeriodoUtil.normalizarPeriodo(periodoDestino);
+    long delta = ChronoUnit.MONTHS.between(periodoOrigemNormalizado, periodoDestinoNormalizado);
+
+    if (periodoOrigemNormalizado.isEqual(periodoDestinoNormalizado)) {
+      throw new GerenciadorException("Os períodos de origem e destino não podem ser os mesmos");
+    }
+
+    Stream<Previsao> previsoesOrigem = previsaoRepository.listarPorPeriodo(periodoOrigemNormalizado);
+    Iterator<Previsao> iterator = previsoesOrigem.iterator();
+    List<PrevisaoDTO> inseridas = new ArrayList<>();
+    while (iterator.hasNext()) {
+      Previsao previsao = iterator.next();
+      Optional<PrevisaoDTO> inserido = clonar(previsao, periodoDestinoNormalizado, delta);
+      if (inserido.isPresent()) {
+        inseridas.add(inserido.get());
+      }
+    }
+
+    return inseridas.stream();
+  }
+
+  private Optional<PrevisaoDTO> clonar(Previsao previsao, LocalDate periodoDestino, long delta) {
+    try {
+      PrevisaoDTO novo = PrevisaoDTO.from(previsao);
+      novo.setPeriodo(periodoDestino);
+      novo.setId(null);
+
+      return Optional.of(inserirPrevisao(novo));
+    } catch (GerenciadorException exception) {
+      return Optional.empty();
+    }
   }
 
 }
