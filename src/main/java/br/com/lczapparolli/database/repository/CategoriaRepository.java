@@ -1,11 +1,14 @@
 package br.com.lczapparolli.database.repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import br.com.lczapparolli.database.entity.Categoria;
+import br.com.lczapparolli.service.CategoriaService.CategoriasSistema;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
@@ -20,11 +23,17 @@ public class CategoriaRepository implements PanacheRepository<Categoria> {
   }
 
   public Stream<Categoria> listarSemPrevisao(LocalDate periodo) {
-    String hql = "SELECT c FROM Categoria c " +
-        "LEFT JOIN Previsao p ON p.categoria = c AND p.periodo = ?1 AND p.ativo = true " +
-        "WHERE c.ativo = true AND p.id IS NULL";
+    Parameters params = Parameters.with("periodo", periodo)
+        .and("ativo", true)
+        .and("idsSistema", List.of(CategoriasSistema.FATURA.getId(), CategoriasSistema.TRANSFERENCIA.getId()));
 
-    return find(hql, periodo).stream();
+    String hql = "SELECT c FROM Categoria c " +
+        "LEFT JOIN Previsao p ON p.categoria = c AND p.periodo = :periodo AND p.ativo = true " +
+        "WHERE c.ativo = :ativo " +
+        "AND p.id IS NULL " +
+        "AND c.id NOT IN :idsSistema";
+
+    return find(hql, params).stream();
   }
 
 }

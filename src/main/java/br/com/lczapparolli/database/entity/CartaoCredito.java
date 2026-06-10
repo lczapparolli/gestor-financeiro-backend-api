@@ -24,7 +24,8 @@ public class CartaoCredito extends Conta {
   private int diaFechamento;
 
   @Builder(builderMethodName = "cartaoCreditoBuilder")
-  public CartaoCredito(Long id, String descricao, boolean ativo, LocalDateTime dataCriacao, LocalDateTime versao, int diaVencimento, int diaFechamento) {
+  public CartaoCredito(Long id, String descricao, boolean ativo, LocalDateTime dataCriacao, LocalDateTime versao,
+      int diaVencimento, int diaFechamento) {
     super(id, descricao, ativo, dataCriacao, versao);
     this.diaVencimento = diaVencimento;
     this.diaFechamento = diaFechamento;

@@ -12,9 +12,22 @@ import br.com.lczapparolli.exception.ValidacaoException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import lombok.Getter;
 
 @ApplicationScoped
 public class CategoriaService {
+
+  @Getter
+  public enum CategoriasSistema {
+    TRANSFERENCIA(1L),
+    FATURA(2L);
+
+    private Long id;
+
+    private CategoriasSistema(Long id) {
+      this.id = id;
+    }
+  }
 
   @Inject
   CategoriaRepository categoriaRepository;
@@ -78,6 +91,11 @@ public class CategoriaService {
 
     if (Objects.isNull(idCategoria) || idCategoria.compareTo(0L) <= 0) {
       throw new ValidacaoException("O id precisa ser preenchido");
+    }
+
+    if (idCategoria.equals(CategoriasSistema.TRANSFERENCIA.getId())
+        || idCategoria.equals(CategoriasSistema.FATURA.getId())) {
+      throw new ValidacaoException("Não é possível alterar os registros do sistema");
     }
 
     var pesquisa = categoriaRepository.findByDescricao(categoriaDTO.getDescricao());

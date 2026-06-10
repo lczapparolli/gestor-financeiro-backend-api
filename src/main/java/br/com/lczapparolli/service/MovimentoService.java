@@ -1,5 +1,6 @@
 package br.com.lczapparolli.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +28,8 @@ public class MovimentoService {
   ContaRepository contaRepository;
   @Inject
   CategoriaRepository categoriaRepository;
+  @Inject
+  FaturaService faturaService;
 
   public Stream<MovimentoDTO> listarMovimentos(LocalDate periodo) {
     LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
@@ -89,6 +92,7 @@ public class MovimentoService {
     movimento.setAtivo(true);
 
     movimentoRepository.persist(movimento);
+    faturaService.atualizarFatura(movimento.getConta(), movimento.getPeriodo(), movimento.getValor());
 
     return MovimentoDTO.from(movimento);
   }
@@ -140,6 +144,7 @@ public class MovimentoService {
       throw new GerenciadorException("O movimento não foi encontrado");
     }
 
+    BigDecimal diferencaValor = movimentoDTO.getValor().subtract(movimento.get().getValor());
     movimento.get().setDescricao(movimentoDTO.getDescricao());
     movimento.get().setValor(movimentoDTO.getValor());
     movimento.get().setData(movimentoDTO.getData());
@@ -148,6 +153,8 @@ public class MovimentoService {
     movimento.get().setAtivo(true);
 
     movimentoRepository.persist(movimento.get());
+    faturaService.atualizarFatura(movimento.get().getConta(),
+        movimento.get().getPeriodo(), diferencaValor);
 
     return MovimentoDTO.from(movimento.get());
   }
@@ -169,5 +176,7 @@ public class MovimentoService {
 
     movimento.get().setAtivo(false);
     movimentoRepository.persist(movimento.get());
+    faturaService.atualizarFatura(movimento.get().getConta(), movimento.get().getData(),
+        movimento.get().getValor().negate());
   }
 }
