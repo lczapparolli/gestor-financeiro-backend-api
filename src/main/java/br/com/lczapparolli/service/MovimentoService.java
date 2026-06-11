@@ -8,8 +8,10 @@ import java.util.stream.Stream;
 
 import br.com.lczapparolli.database.entity.Categoria;
 import br.com.lczapparolli.database.entity.Conta;
+import br.com.lczapparolli.database.entity.ContaPagar;
 import br.com.lczapparolli.database.entity.Movimento;
 import br.com.lczapparolli.database.repository.CategoriaRepository;
+import br.com.lczapparolli.database.repository.ContaPagarRepository;
 import br.com.lczapparolli.database.repository.ContaRepository;
 import br.com.lczapparolli.database.repository.MovimentoRepository;
 import br.com.lczapparolli.dto.MovimentoDTO;
@@ -28,6 +30,8 @@ public class MovimentoService {
   ContaRepository contaRepository;
   @Inject
   CategoriaRepository categoriaRepository;
+  @Inject
+  ContaPagarRepository contaPagarRepository;
   @Inject
   FaturaService faturaService;
 
@@ -89,6 +93,7 @@ public class MovimentoService {
     movimento.setValor(movimentoDTO.getValor());
     movimento.setConta(conta.get());
     movimento.setCategoria(categoria.get());
+    movimento.setContaPagar(obterContaPagar(movimentoDTO));
     movimento.setAtivo(true);
 
     movimentoRepository.persist(movimento);
@@ -150,6 +155,7 @@ public class MovimentoService {
     movimento.get().setData(movimentoDTO.getData());
     movimento.get().setConta(conta.get());
     movimento.get().setCategoria(categoria.get());
+    movimento.get().setContaPagar(obterContaPagar(movimentoDTO));
     movimento.get().setAtivo(true);
 
     movimentoRepository.persist(movimento.get());
@@ -178,5 +184,24 @@ public class MovimentoService {
     movimentoRepository.persist(movimento.get());
     faturaService.atualizarFatura(movimento.get().getConta(), movimento.get().getData(),
         movimento.get().getValor().negate());
+  }
+
+  private ContaPagar obterContaPagar(MovimentoDTO movimentoDTO) throws GerenciadorException {
+    if (Objects.isNull(movimentoDTO.getContaPagar()) || Objects.isNull(movimentoDTO.getContaPagar().getId())
+        || movimentoDTO.getContaPagar().getId().compareTo(0L) == 0) {
+      return null;
+    }
+
+    Optional<ContaPagar> contaPagar = contaPagarRepository.findByIdOptional(movimentoDTO.getContaPagar().getId());
+    if (contaPagar.isEmpty() || (contaPagar.isPresent() && !contaPagar.get().isAtivo())) {
+      throw new GerenciadorException("A conta a pagar informada não foi encontrada");
+    }
+
+    LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(movimentoDTO.getPeriodo());
+    if (!contaPagar.get().getPeriodo().equals(periodoNormalizado)) {
+      throw new GerenciadorException("O período do movimento e da conta a pagar precisam ser os mesmos");
+    }
+
+    return contaPagar.get();
   }
 }

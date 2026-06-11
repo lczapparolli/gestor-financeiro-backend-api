@@ -2,6 +2,7 @@ package br.com.lczapparolli.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import br.com.lczapparolli.database.entity.Movimento;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,7 @@ public class MovimentoDTO {
   private String descricao;
   private ContaDTO conta;
   private CategoriaDTO categoria;
+  private ContaPagarDTO contaPagar;
   private LocalDate data;
   private LocalDate periodo;
   private BigDecimal valor;
@@ -34,6 +36,7 @@ public class MovimentoDTO {
         .valor(movimento.getValor())
         .conta(ContaDTO.from(movimento.getConta()))
         .categoria(CategoriaDTO.from(movimento.getCategoria()))
+        .contaPagar(Objects.isNull(movimento.getContaPagar()) ? null : ContaPagarDTO.from(movimento.getContaPagar()))
         .build();
   }
 

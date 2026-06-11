@@ -52,6 +52,10 @@ public class Movimento {
   @JoinColumn(name = "id_categoria", nullable = false)
   private Categoria categoria;
 
+  @ManyToOne(optional = true)
+  @JoinColumn(name = "id_contapagar", nullable = true)
+  private ContaPagar contaPagar;
+
   @Column(name = "periodo", nullable = false)
   private LocalDate periodo;
 
