@@ -10,6 +10,7 @@ CREATE TABLE `CONTA` (
 CREATE TABLE `CATEGORIA` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `descricao` varchar(255) NOT NULL,
+  `cumulativo` bool NOT NULL DEFAULT 0,
   `ativo` bool NOT NULL DEFAULT 1,
   `data_criacao` datetime(6) NOT NULL,
   `versao` datetime(6) NOT NULL,

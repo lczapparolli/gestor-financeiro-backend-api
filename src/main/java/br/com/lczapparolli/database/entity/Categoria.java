@@ -25,22 +25,25 @@ import lombok.Setter;
 @Entity
 @Table(name = "CATEGORIA")
 public class Categoria {
-  
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false)
   private Long id;
-  
+
   @Column(name = "descricao", nullable = false)
   private String descricao;
 
+  @Column(name = "cumulativo", nullable = false)
+  private boolean cumulativo;
+
   @Column(name = "ativo", nullable = false)
   private boolean ativo;
-  
+
   @CreationTimestamp
   @Column(name = "data_criacao", nullable = false, updatable = false)
   private LocalDateTime dataCriacao;
-  
+
   @Version
   @Column(name = "versao", nullable = false)
   private LocalDateTime versao;

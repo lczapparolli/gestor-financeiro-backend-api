@@ -65,6 +65,7 @@ public class CategoriaService {
 
       var categoria = pesquisa.get();
       categoria.setAtivo(true);
+      categoria.setCumulativo(categoriaDTO.isCumulativo());
       categoriaRepository.persist(categoria);
       return CategoriaDTO.from(categoria);
     }
@@ -72,6 +73,7 @@ public class CategoriaService {
     var categoria = Categoria.builder()
         .descricao(categoriaDTO.getDescricao())
         .ativo(true)
+        .cumulativo(categoriaDTO.isCumulativo())
         .build();
 
     categoriaRepository.persist(categoria);
@@ -117,6 +119,7 @@ public class CategoriaService {
 
     var categoria = pesquisaId.get();
     categoria.setDescricao(categoriaDTO.getDescricao());
+    categoria.setCumulativo(categoriaDTO.isCumulativo());
 
     categoriaRepository.persist(categoria);
 
