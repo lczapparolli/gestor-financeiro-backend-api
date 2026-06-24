@@ -1,5 +1,6 @@
 package br.com.lczapparolli.api;
 
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
@@ -31,6 +32,14 @@ public class MovimentoResource {
   @POST
   public MovimentoDTO inserirMovimento(MovimentoDTO movimentoDTO) throws GerenciadorException {
     return movimentoService.inserirMovimento(movimentoDTO);
+  }
+
+  @POST
+  @Path("/lote")
+  public Stream<MovimentoDTO> inserirMovimentosLote(@QueryParam("ano") String ano, @QueryParam("mes") String mes,
+      String movimentos) throws GerenciadorException, ParseException {
+    LocalDate periodo = PeriodoUtil.fromAnoMes(ano, mes);
+    return movimentoService.inserirMovimentosLote(periodo, movimentos.lines());
   }
 
   @PATCH
