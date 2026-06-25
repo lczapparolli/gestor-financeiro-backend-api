@@ -1,5 +1,6 @@
 package br.com.lczapparolli.database.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
@@ -16,6 +17,30 @@ public class MovimentoRepository implements PanacheRepository<Movimento> {
         .and("ativo", true);
 
     return stream("periodo = :periodo AND ativo = :ativo", parameters);
+  }
+
+  public BigDecimal saldoContaAteOPeriodo(Long idConta, LocalDate periodo) {
+    Parameters params = Parameters.with("idConta", idConta)
+        .and("periodo", periodo)
+        .and("ativo", true);
+
+    return find(
+        "SELECT sum(valor) FROM Movimento m WHERE m.ativo = :ativo AND m.conta.id = :idConta AND m.periodo < :periodo",
+        params)
+        .project(BigDecimal.class)
+        .singleResult();
+  }
+
+  public BigDecimal saldoContaNoPeriodo(Long idConta, LocalDate periodo) {
+    Parameters params = Parameters.with("idConta", idConta)
+        .and("periodo", periodo)
+        .and("ativo", true);
+
+    return find(
+        "SELECT sum(valor) FROM Movimento m WHERE m.ativo = :ativo AND m.conta.id = :idConta and m.periodo = :periodo",
+        params)
+        .project(BigDecimal.class)
+        .singleResult();
   }
 
 }

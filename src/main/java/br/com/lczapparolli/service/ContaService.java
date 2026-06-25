@@ -1,5 +1,10 @@
 package br.com.lczapparolli.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -7,9 +12,12 @@ import java.util.stream.Stream;
 import br.com.lczapparolli.database.entity.Conta;
 import br.com.lczapparolli.database.repository.CartaoCreditoRepository;
 import br.com.lczapparolli.database.repository.ContaRepository;
+import br.com.lczapparolli.database.repository.MovimentoRepository;
+import br.com.lczapparolli.dto.ContaComSaldoDTO;
 import br.com.lczapparolli.dto.ContaDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.exception.ValidacaoException;
+import br.com.lczapparolli.util.PeriodoUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -23,6 +31,9 @@ public class ContaService {
   @Inject
   CartaoCreditoRepository cartaoCreditoRepository;
 
+  @Inject
+  MovimentoRepository movimentoRepository;
+
   public Stream<ContaDTO> listarContas(boolean incluirCartoes) {
     Stream<Conta> listaContas;
     if (incluirCartoes) {
@@ -32,6 +43,31 @@ public class ContaService {
     }
 
     return listaContas.map(ContaDTO::from);
+  }
+
+  public Stream<ContaComSaldoDTO> listarContasComSaldo(LocalDate periodo) throws GerenciadorException {
+    LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
+    List<Conta> listaContas = contaRepository.listarAtivasSemCartoes().toList();
+    Iterator<Conta> iterator = listaContas.iterator();
+    List<ContaComSaldoDTO> resultado = new ArrayList<>();
+    while (iterator.hasNext()) {
+      Conta conta = iterator.next();
+
+      BigDecimal saldoInicial = Optional
+          .ofNullable(movimentoRepository.saldoContaAteOPeriodo(conta.getId(), periodoNormalizado))
+          .orElse(BigDecimal.ZERO);
+      BigDecimal saldoFinal = Optional
+          .ofNullable(movimentoRepository.saldoContaNoPeriodo(conta.getId(), periodoNormalizado))
+          .orElse(BigDecimal.ZERO);
+      resultado.add(ContaComSaldoDTO.comSaldoBuilder()
+          .id(conta.getId())
+          .descricao(conta.getDescricao())
+          .saldoInicial(saldoInicial)
+          .saldoFinal(saldoInicial.add(saldoFinal))
+          .build());
+    }
+
+    return resultado.stream();
   }
 
   public Optional<ContaDTO> obterConta(Long idConta) {

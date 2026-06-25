@@ -1,11 +1,14 @@
 package br.com.lczapparolli.api;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import br.com.lczapparolli.dto.ContaComSaldoDTO;
 import br.com.lczapparolli.dto.ContaDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.service.ContaService;
+import br.com.lczapparolli.util.PeriodoUtil;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -24,6 +27,14 @@ public class ContaResource {
   @GET
   public Stream<ContaDTO> listarContas(@QueryParam("incluirCartoes") boolean incluirCartoes) {
     return contaService.listarContas(incluirCartoes);
+  }
+
+  @GET
+  @Path("/saldo")
+  public Stream<ContaComSaldoDTO> listarContasComSaldo(@QueryParam("ano") String ano, @QueryParam("mes") String mes)
+      throws GerenciadorException {
+    LocalDate periodo = PeriodoUtil.fromAnoMes(ano, mes);
+    return contaService.listarContasComSaldo(periodo);
   }
 
   @GET
