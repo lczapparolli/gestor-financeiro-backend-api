@@ -1,5 +1,6 @@
 package br.com.lczapparolli.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -12,8 +13,10 @@ import java.util.stream.Stream;
 import br.com.lczapparolli.database.entity.Categoria;
 import br.com.lczapparolli.database.entity.Previsao;
 import br.com.lczapparolli.database.repository.CategoriaRepository;
+import br.com.lczapparolli.database.repository.MovimentoRepository;
 import br.com.lczapparolli.database.repository.PrevisaoRepository;
 import br.com.lczapparolli.dto.CategoriaDTO;
+import br.com.lczapparolli.dto.PrevisaoComSaldoDTO;
 import br.com.lczapparolli.dto.PrevisaoDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.util.PeriodoUtil;
@@ -28,6 +31,8 @@ public class PrevisaoService {
   PrevisaoRepository previsaoRepository;
   @Inject
   CategoriaRepository categoriaRepository;
+  @Inject
+  MovimentoRepository movimentoRepository;
 
   public Stream<PrevisaoDTO> listarPrevisoes(LocalDate periodo) {
     LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
@@ -158,6 +163,53 @@ public class PrevisaoService {
     }
 
     return inseridas.stream();
+  }
+
+  public Stream<PrevisaoComSaldoDTO> listarComSaldo(LocalDate periodo) {
+    LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
+
+    List<Previsao> previsoes = Stream.concat(
+        previsaoRepository.listarPorPeriodo(periodoNormalizado),
+        categoriaRepository.listarSemPrevisao(periodoNormalizado)
+            .map(categoria -> Previsao.builder()
+                .id(null)
+                .categoria(categoria)
+                .valor(BigDecimal.ZERO)
+                .periodo(periodoNormalizado)
+                .build()))
+        .toList();
+    Iterator<Previsao> iterator = previsoes.iterator();
+    List<PrevisaoComSaldoDTO> resultado = new ArrayList<>();
+    while (iterator.hasNext()) {
+      Previsao previsao = iterator.next();
+      BigDecimal valorPrevisao = previsao.getValor();
+      BigDecimal saldoPeriodo = Optional
+          .ofNullable(movimentoRepository.saldoCategoriaNoPeriodo(previsao.getCategoria().getId(),
+              periodoNormalizado))
+          .orElse(BigDecimal.ZERO);
+
+      if (previsao.getCategoria().isCumulativo()) {
+        BigDecimal saldoAnterior = Optional
+            .ofNullable(
+                movimentoRepository.saldoCategoriaAteOPeriodo(previsao.getCategoria().getId(), periodoNormalizado))
+            .orElse(BigDecimal.ZERO);
+
+        BigDecimal previsaoAnterior = Optional
+            .ofNullable(previsaoRepository.previsaoAteOPeriodo(periodoNormalizado, previsao.getCategoria().getId()))
+            .orElse(BigDecimal.ZERO);
+
+        valorPrevisao = previsaoAnterior.add(valorPrevisao).subtract(saldoAnterior);
+      }
+      resultado.add(PrevisaoComSaldoDTO.comSaldoBuilder()
+          .id(previsao.getId())
+          .categoria(CategoriaDTO.from(previsao.getCategoria()))
+          .periodo(periodoNormalizado)
+          .valor(valorPrevisao)
+          .saldo(saldoPeriodo)
+          .build());
+    }
+
+    return resultado.stream();
   }
 
   private Optional<PrevisaoDTO> clonar(Previsao previsao, LocalDate periodoDestino, long delta) {

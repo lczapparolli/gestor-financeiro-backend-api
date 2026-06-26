@@ -1,5 +1,6 @@
 package br.com.lczapparolli.database.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -24,6 +25,18 @@ public class PrevisaoRepository implements PanacheRepository<Previsao> {
         .and("idCategoria", idCategoria);
 
     return find("periodo = :periodo AND categoria.id = :idCategoria", parametros).singleResultOptional();
+  }
+
+  public BigDecimal previsaoAteOPeriodo(LocalDate periodo, Long idCategoria) {
+    Parameters params = Parameters.with("idCategoria", idCategoria)
+        .and("periodo", periodo)
+        .and("ativo", true);
+
+    return find(
+        "SELECT sum(valor) FROM Previsao p WHERE p.ativo = :ativo AND p.categoria.id = :idCategoria AND p.periodo < :periodo",
+        params)
+        .project(BigDecimal.class)
+        .singleResult();
   }
 
 }

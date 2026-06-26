@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import br.com.lczapparolli.dto.PrevisaoComSaldoDTO;
 import br.com.lczapparolli.dto.PrevisaoDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.service.PrevisaoService;
@@ -62,6 +63,13 @@ public class PrevisaoResource {
     LocalDate periodoDestino = LocalDate.parse(destino);
 
     return previsaoService.clonarPrevisoes(periodoOrigem, periodoDestino);
+  }
+
+  @GET
+  @Path("/saldo")
+  public Stream<PrevisaoComSaldoDTO> listarComSaldo(@QueryParam("ano") String ano, @QueryParam("mes") String mes) {
+    LocalDate periodo = PeriodoUtil.fromAnoMes(ano, mes);
+    return previsaoService.listarComSaldo(periodo);
   }
 
 }

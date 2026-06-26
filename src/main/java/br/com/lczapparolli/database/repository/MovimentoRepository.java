@@ -43,4 +43,28 @@ public class MovimentoRepository implements PanacheRepository<Movimento> {
         .singleResult();
   }
 
+  public BigDecimal saldoCategoriaNoPeriodo(Long idCategoria, LocalDate periodo) {
+    Parameters params = Parameters.with("idCategoria", idCategoria)
+        .and("periodo", periodo)
+        .and("ativo", true);
+
+    return find(
+        "SELECT sum(valor) FROM Movimento m WHERE m.ativo = :ativo AND m.categoria.id = :idCategoria AND m.periodo = :periodo",
+        params)
+        .project(BigDecimal.class)
+        .singleResult();
+  }
+
+  public BigDecimal saldoCategoriaAteOPeriodo(Long idCategoria, LocalDate periodo) {
+    Parameters params = Parameters.with("idCategoria", idCategoria)
+        .and("periodo", periodo)
+        .and("ativo", true);
+
+    return find(
+        "SELECT sum(valor) FROM Movimento m WHERE m.ativo = :ativo AND m.categoria.id = :idCategoria AND m.periodo < :periodo",
+        params)
+        .project(BigDecimal.class)
+        .singleResult();
+  }
+
 }
