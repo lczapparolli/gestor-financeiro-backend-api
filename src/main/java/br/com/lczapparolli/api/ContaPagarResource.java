@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import br.com.lczapparolli.dto.ContaPagarComSaldoDTO;
 import br.com.lczapparolli.dto.ContaPagarDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.service.ContaPagarService;
@@ -57,5 +58,12 @@ public class ContaPagarResource {
     LocalDate periodoDestino = LocalDate.parse(destino);
 
     return contaPagarService.clonarContasPagar(periodoOrigem, periodoDestino);
+  }
+
+  @GET
+  @Path("/saldo")
+  public Stream<ContaPagarComSaldoDTO> listarComSaldo(@QueryParam("ano") String ano, @QueryParam("mes") String mes) {
+    LocalDate periodo = PeriodoUtil.fromAnoMes(ano, mes);
+    return contaPagarService.listarComSaldo(periodo);
   }
 }

@@ -15,6 +15,9 @@ import br.com.lczapparolli.database.entity.Categoria;
 import br.com.lczapparolli.database.entity.ContaPagar;
 import br.com.lczapparolli.database.repository.CategoriaRepository;
 import br.com.lczapparolli.database.repository.ContaPagarRepository;
+import br.com.lczapparolli.database.repository.MovimentoRepository;
+import br.com.lczapparolli.dto.CategoriaDTO;
+import br.com.lczapparolli.dto.ContaPagarComSaldoDTO;
 import br.com.lczapparolli.dto.ContaPagarDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.util.PeriodoUtil;
@@ -29,6 +32,8 @@ public class ContaPagarService {
   ContaPagarRepository contaPagarRepository;
   @Inject
   CategoriaRepository categoriaRepository;
+  @Inject
+  MovimentoRepository movimentoRepository;
 
   public Stream<ContaPagarDTO> listarContasPagar(LocalDate periodo) {
     LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
@@ -51,7 +56,7 @@ public class ContaPagarService {
       throw new GerenciadorException("O período precisa ser preenchido");
     }
 
-    if (Objects.isNull(contaPagarDTO.getValor()) || contaPagarDTO.getValor().compareTo(BigDecimal.ZERO) <= 0) {
+    if (Objects.isNull(contaPagarDTO.getValor()) || contaPagarDTO.getValor().compareTo(BigDecimal.ZERO) == 0) {
       throw new GerenciadorException("O valor da conta precisa ser preenchido");
     }
 
@@ -107,7 +112,7 @@ public class ContaPagarService {
       throw new GerenciadorException("É necessário informar a descrição");
     }
 
-    if (Objects.isNull(contaPagarDTO.getValor()) || contaPagarDTO.getValor().compareTo(BigDecimal.ZERO) <= 0) {
+    if (Objects.isNull(contaPagarDTO.getValor()) || contaPagarDTO.getValor().compareTo(BigDecimal.ZERO) == 0) {
       throw new GerenciadorException("O valor da conta precisa ser preenchido");
     }
 
@@ -197,6 +202,29 @@ public class ContaPagarService {
     }
 
     return inseridas.stream();
+  }
+
+  public Stream<ContaPagarComSaldoDTO> listarComSaldo(LocalDate periodo) {
+    LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
+
+    List<ContaPagar> contasPagar = contaPagarRepository.listarAtivasPorPeriodo(periodo).toList();
+    List<ContaPagarComSaldoDTO> resultado = new ArrayList<>();
+
+    for (ContaPagar contaPagar : contasPagar) {
+      BigDecimal saldo = Optional
+          .ofNullable(movimentoRepository.saldoContaPagarNoPeriodo(contaPagar.getId(), periodoNormalizado))
+          .orElse(BigDecimal.ZERO);
+      resultado.add(ContaPagarComSaldoDTO.comSaldoBuilder()
+          .id(contaPagar.getId())
+          .descricao(contaPagar.getDescricao())
+          .periodo(contaPagar.getPeriodo())
+          .vencimento(contaPagar.getVencimento())
+          .valor(contaPagar.getValor())
+          .categoria(CategoriaDTO.from(contaPagar.getCategoria()))
+          .saldo(saldo)
+          .build());
+    }
+    return resultado.stream();
   }
 
   private Optional<ContaPagarDTO> clonar(ContaPagar contaPagar, LocalDate periodoDestino, long delta) {
