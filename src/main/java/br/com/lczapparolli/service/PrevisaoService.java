@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import br.com.lczapparolli.database.entity.Categoria;
 import br.com.lczapparolli.database.entity.Previsao;
 import br.com.lczapparolli.database.repository.CategoriaRepository;
+import br.com.lczapparolli.database.repository.ContaPagarRepository;
 import br.com.lczapparolli.database.repository.MovimentoRepository;
 import br.com.lczapparolli.database.repository.PrevisaoRepository;
 import br.com.lczapparolli.dto.CategoriaDTO;
@@ -33,6 +34,8 @@ public class PrevisaoService {
   CategoriaRepository categoriaRepository;
   @Inject
   MovimentoRepository movimentoRepository;
+  @Inject
+  ContaPagarRepository contaPagarRepository;
 
   public Stream<PrevisaoDTO> listarPrevisoes(LocalDate periodo) {
     LocalDate periodoNormalizado = PeriodoUtil.normalizarPeriodo(periodo);
@@ -182,7 +185,11 @@ public class PrevisaoService {
     List<PrevisaoComSaldoDTO> resultado = new ArrayList<>();
     while (iterator.hasNext()) {
       Previsao previsao = iterator.next();
-      BigDecimal valorPrevisao = previsao.getValor();
+      BigDecimal valorContasPagar = Optional
+          .ofNullable(
+              contaPagarRepository.valorPorCategoriaPeriodo(periodoNormalizado, previsao.getCategoria().getId()))
+          .orElse(BigDecimal.ZERO);
+      BigDecimal valorPrevisao = previsao.getValor().add(valorContasPagar);
       BigDecimal saldoPeriodo = Optional
           .ofNullable(movimentoRepository.saldoCategoriaNoPeriodo(previsao.getCategoria().getId(),
               periodoNormalizado))
