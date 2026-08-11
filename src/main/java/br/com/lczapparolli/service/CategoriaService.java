@@ -9,6 +9,7 @@ import br.com.lczapparolli.database.repository.CategoriaRepository;
 import br.com.lczapparolli.dto.CategoriaDTO;
 import br.com.lczapparolli.exception.GerenciadorException;
 import br.com.lczapparolli.exception.ValidacaoException;
+import br.com.lczapparolli.tipo.TipoCategoria;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -57,6 +58,15 @@ public class CategoriaService {
       throw new ValidacaoException("A descrição precisa ser preenchida");
     }
 
+    if (Objects.isNull(categoriaDTO.getTipo()) || categoriaDTO.getTipo().isBlank()) {
+      throw new ValidacaoException("O tipo precisa ser preenchido");
+    }
+
+    Optional<TipoCategoria> tipoCategoria = TipoCategoria.fromName(categoriaDTO.getTipo());
+    if (tipoCategoria.isEmpty()) {
+      throw new ValidacaoException("O tipo informado não é válido");
+    }
+
     var pesquisa = categoriaRepository.findByDescricao(categoriaDTO.getDescricao());
     if (pesquisa.isPresent()) {
       if (pesquisa.get().isAtivo()) {
@@ -66,6 +76,7 @@ public class CategoriaService {
       var categoria = pesquisa.get();
       categoria.setAtivo(true);
       categoria.setCumulativo(categoriaDTO.isCumulativo());
+      categoria.setTipo(tipoCategoria.get());
       categoriaRepository.persist(categoria);
       return CategoriaDTO.from(categoria);
     }
@@ -74,6 +85,7 @@ public class CategoriaService {
         .descricao(categoriaDTO.getDescricao())
         .ativo(true)
         .cumulativo(categoriaDTO.isCumulativo())
+        .tipo(tipoCategoria.get())
         .build();
 
     categoriaRepository.persist(categoria);
@@ -100,6 +112,15 @@ public class CategoriaService {
       throw new ValidacaoException("Não é possível alterar os registros do sistema");
     }
 
+    if (Objects.isNull(categoriaDTO.getTipo()) || categoriaDTO.getTipo().isBlank()) {
+      throw new ValidacaoException("O tipo precisa ser preenchido");
+    }
+
+    Optional<TipoCategoria> tipoCategoria = TipoCategoria.fromName(categoriaDTO.getTipo());
+    if (tipoCategoria.isEmpty()) {
+      throw new ValidacaoException("O tipo informado não é válido");
+    }
+
     var pesquisa = categoriaRepository.findByDescricao(categoriaDTO.getDescricao());
     if (pesquisa.isPresent() && pesquisa.get().getId() != idCategoria) {
       if (!pesquisa.get().isAtivo()) {
@@ -120,6 +141,7 @@ public class CategoriaService {
     var categoria = pesquisaId.get();
     categoria.setDescricao(categoriaDTO.getDescricao());
     categoria.setCumulativo(categoriaDTO.isCumulativo());
+    categoria.setTipo(tipoCategoria.get());
 
     categoriaRepository.persist(categoria);
 
@@ -134,7 +156,7 @@ public class CategoriaService {
     }
 
     if (!resultadoConsulta.get().isAtivo()) {
-      throw new ValidacaoException("A categpria já está desativada");
+      throw new ValidacaoException("A categoria já está desativada");
     }
 
     Categoria categoria = resultadoConsulta.get();

@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import br.com.lczapparolli.tipo.TipoCategoria;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,6 +39,10 @@ public class Categoria {
 
   @Column(name = "cumulativo", nullable = false)
   private boolean cumulativo;
+
+  @Column(name = "tipo", nullable = false)
+  @Enumerated(EnumType.ORDINAL)
+  private TipoCategoria tipo;
 
   @Column(name = "ativo", nullable = false)
   private boolean ativo;
